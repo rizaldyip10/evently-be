@@ -17,11 +17,10 @@ public class UserAuth extends User implements UserDetails {
 
     public UserAuth(User user){
         this.user = user;
-
     }
 
     public String getPassword(){
-        return user.getPassword();
+        return this.user.getPassword();
     }
 
 
@@ -34,7 +33,7 @@ public class UserAuth extends User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return getEmail();
+        return this.user.getEmail();
     }
 
     @Override

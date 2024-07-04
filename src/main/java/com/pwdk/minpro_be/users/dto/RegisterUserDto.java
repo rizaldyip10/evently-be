@@ -17,6 +17,8 @@ public class RegisterUserDto {
     @NotBlank(message = "Password is required")
     private String password;
 
+    private String role;
+
     public User toEntity(){
         User user = new User();
         user.setName(name);

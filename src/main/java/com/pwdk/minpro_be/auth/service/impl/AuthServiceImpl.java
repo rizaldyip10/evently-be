@@ -3,6 +3,7 @@ package com.pwdk.minpro_be.auth.service.impl;
 import com.pwdk.minpro_be.auth.repository.AuthRedisRepository;
 import com.pwdk.minpro_be.auth.service.AuthService;
 import com.pwdk.minpro_be.users.repository.UserRepository;
+import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
+@Log
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -33,14 +35,17 @@ public class AuthServiceImpl implements AuthService {
         this.authRedisRepository = authRedisRepository;
     }
 
-    public String generateToken(Authentication authentication){
+    public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
-        String scope = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(""));
+        String scope = authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
 
-        var existingkey = authRedisRepository.getJwtKey(authentication.getName());
-        if(existingkey != null){
-            log.info("Token already exist for user" + authentication.getName());
-            return existingkey;
+        var existingKey = authRedisRepository.getJwtKey(authentication.getName());
+        if (existingKey != null) {
+            log.info("Token already exists for user: " + authentication.getName());
+            return existingKey;
         }
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -55,12 +60,6 @@ public class AuthServiceImpl implements AuthService {
         var jwt = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
         authRedisRepository.saveJwtKey(authentication.getName(), jwt);
         return jwt;
-
     }
 
-
-    @Override
-    public String generatedToken(Authentication authentication) {
-        return "";
-    }
 }

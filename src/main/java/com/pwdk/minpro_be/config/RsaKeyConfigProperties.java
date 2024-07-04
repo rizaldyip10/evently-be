@@ -1,4 +1,4 @@
-package com.pwdk.minpro_be.auth.config;
+package com.pwdk.minpro_be.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

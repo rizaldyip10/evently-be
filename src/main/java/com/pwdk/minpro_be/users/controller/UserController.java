@@ -27,6 +27,5 @@ public class UserController {
     @GetMapping("/profile")
     public ResponseEntity<?>profile(@RequestBody String email){
         return Response.success("User profile", userService.findByEmail(email));
-
     }
 }

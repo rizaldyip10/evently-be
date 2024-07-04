@@ -5,7 +5,6 @@ import com.pwdk.minpro_be.auth.dto.LoginResponseDto;
 import com.pwdk.minpro_be.auth.entity.UserAuth;
 import com.pwdk.minpro_be.auth.service.AuthService;
 import jakarta.servlet.http.Cookie;
-import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -38,14 +37,13 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequestDto userlogin){
         log.info("User login request received for user: " + userlogin.getEmail());
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userlogin.getEmail(),userlogin.getPassword()));
-
         var ctx = SecurityContextHolder.getContext();
         ctx.setAuthentication(authentication);
 
         UserAuth userDetails = (UserAuth) authentication.getPrincipal();
+        log.info("Principal " + userDetails.getUsername());
         log.info("Token requested for user: " + userDetails.getUsername() + "with role:" + userDetails.getAuthorities().toArray()[0]);
-        String token = authService.generatedToken(authentication);
-
+        String token = authService.generateToken(authentication);
         log.info(token);
 
         LoginResponseDto response = new LoginResponseDto();
@@ -56,6 +54,5 @@ public class AuthController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=/; HttpOnly");
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
-
     }
 }

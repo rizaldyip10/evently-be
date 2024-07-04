@@ -1,4 +1,4 @@
-package com.pwdk.minpro_be.auth.config;
+package com.pwdk.minpro_be.config;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -69,6 +69,13 @@ public class SecurityConfig {
                     auth.requestMatchers("/error/**").permitAll();
                     auth.requestMatchers("/api/v1/auth/login").permitAll();
                     auth.requestMatchers("/api/v1/users/register").permitAll();
+                    auth.requestMatchers("/api/v1/event/create").permitAll();
+                    auth.requestMatchers("api/v1/event").permitAll();
+                    auth.requestMatchers("/api/v1/ticket").permitAll();
+                    auth.requestMatchers("/api/v1/role").permitAll();
+                    auth.requestMatchers("/api/v1/categories/**").permitAll();
+                    auth.requestMatchers("/api/v1/role/user").permitAll();
+                    auth.requestMatchers("/api/v1/event-organization").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

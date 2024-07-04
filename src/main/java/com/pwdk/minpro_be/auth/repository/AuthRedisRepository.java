@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class AuthRedisRepository {
     private static final String STRING_KEY_PREFIX = "evently-be:jwt:string";
-
     private final ValueOperations<String, String> valueOps;
 
     public AuthRedisRepository(RedisTemplate<String, String> redisTemplate){

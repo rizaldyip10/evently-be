@@ -1,4 +1,6 @@
 package com.pwdk.minpro_be.users.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pwdk.minpro_be.userRole.Entity.UserRole;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,6 +11,7 @@ import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
+import java.util.List;
 
 @Setter
 @Getter
@@ -58,7 +61,9 @@ public class User {
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
-
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<UserRole> userRoles;
 
     @PrePersist
     protected void onCreate(){

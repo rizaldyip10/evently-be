@@ -4,6 +4,5 @@ import org.springframework.security.core.Authentication;
 
 
 public interface AuthService {
-    String generatedToken(Authentication authentication);
-
+    String generateToken(Authentication authentication);
 }
