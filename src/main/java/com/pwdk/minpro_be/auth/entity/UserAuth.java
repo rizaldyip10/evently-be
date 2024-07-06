@@ -1,12 +1,16 @@
 package com.pwdk.minpro_be.auth.entity;
 
+import com.pwdk.minpro_be.roles.entity.Roles;
 import com.pwdk.minpro_be.users.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Getter
@@ -26,9 +30,10 @@ public class UserAuth extends User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "Role User");
-        return authorities;
+        List<Roles> roles = this.user.getRole();
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override

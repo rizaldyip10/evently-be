@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.users.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pwdk.minpro_be.roles.entity.Roles;
 import com.pwdk.minpro_be.userRole.Entity.UserRole;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
@@ -49,28 +50,30 @@ public class User {
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createAt;
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<UserRole> userRoles;
-
     @PrePersist
-    protected void onCreate(){
-        this.createAt = Instant.now();
+    public void prePersist() {
+        this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
     }
 
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
+    }
 
-
+    @PreRemove
+    public void preRemove() {
+        this.deletedAt = Instant.now();
+    }
 }

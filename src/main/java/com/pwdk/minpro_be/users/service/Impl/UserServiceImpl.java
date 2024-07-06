@@ -2,7 +2,7 @@ package com.pwdk.minpro_be.users.service.Impl;
 
 import com.pwdk.minpro_be.userRole.service.UserRoleService;
 import com.pwdk.minpro_be.exception.ApplicationException;
-import com.pwdk.minpro_be.users.dto.RegisterUserDto;
+import com.pwdk.minpro_be.auth.dto.RegisterUserRequestDto;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.repository.UserRepository;
 import com.pwdk.minpro_be.users.service.UserService;
@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User register(RegisterUserDto user) {
+    public User register(RegisterUserRequestDto user) {
 //        User newUser = user.toEntity();
         Optional<User> isEmailExist = userRepository.findByEmail(user.getEmail());
         if (isEmailExist.isPresent()) {
