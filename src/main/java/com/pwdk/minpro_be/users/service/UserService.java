@@ -12,4 +12,6 @@ public interface UserService {
     List<User> findAll();
     void deletedAt(Long id);
     User profile();
+
+    String generateReferralCode(String email);
 }

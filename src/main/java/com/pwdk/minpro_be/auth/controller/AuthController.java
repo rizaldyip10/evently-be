@@ -72,7 +72,7 @@ public class AuthController {
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setProfileImg(user.getProfileImg());
-        response.setRole(user.getRole().getFirst());
+        response.setRole(user.getRoles().getFirst());
 
         return Response.success("User profile", response);
     }
