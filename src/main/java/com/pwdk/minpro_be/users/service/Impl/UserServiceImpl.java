@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,13 +87,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public String generateReferralCode(String email) {
         Optional<User> user = userRepository.findByEmail(email);
+        Date today = new Date();
         if (user.isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "User not found");
         }
 
         var userName = user.get().getName();
-        String referralCode = userName.replace(" ", "") + "Evently";
-        user.get().setRefferalCode(referralCode);
+        String referralCode = userName.replace(" ", "") + "Evently" + today.toString();
+        user.get().setReferralCode(referralCode);
         userRepository.save(user.get());
 
         return "Successfully create your referral code";

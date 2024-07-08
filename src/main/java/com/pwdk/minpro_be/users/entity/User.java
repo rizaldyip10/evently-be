@@ -46,7 +46,7 @@ public class User {
     private String profileImg;
 
     @Column(name = "refferal_code")
-    private String refferalCode;
+    private String referralCode;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",

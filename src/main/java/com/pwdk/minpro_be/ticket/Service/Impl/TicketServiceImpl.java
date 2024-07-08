@@ -47,7 +47,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public List<Ticket> findTicketByEventId(Long eventId) {
-        return ticketRepository.findByeventId(eventId);
+        return ticketRepository.findByEventId(eventId);
     }
 
 

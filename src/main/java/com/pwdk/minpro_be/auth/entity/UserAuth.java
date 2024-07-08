@@ -30,7 +30,7 @@ public class UserAuth extends User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<Roles> roles = this.user.getRole();
+        List<Roles> roles = this.user.getRoles();
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toCollection(ArrayList::new));

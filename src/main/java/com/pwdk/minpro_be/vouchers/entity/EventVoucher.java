@@ -22,6 +22,8 @@ public class EventVoucher {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "voucher_id", nullable = false)
     private Voucher voucher;
 
     @NotNull
