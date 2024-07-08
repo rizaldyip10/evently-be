@@ -2,14 +2,18 @@ package com.pwdk.minpro_be.users.service.Impl;
 
 import com.pwdk.minpro_be.userRole.service.UserRoleService;
 import com.pwdk.minpro_be.exception.ApplicationException;
-import com.pwdk.minpro_be.users.dto.RegisterUserDto;
+import com.pwdk.minpro_be.auth.dto.RegisterUserRequestDto;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.repository.UserRepository;
 import com.pwdk.minpro_be.users.service.UserService;
 //import org.springframework.security.crypto.password.PasswordEncoder;
+import com.pwdk.minpro_be.vouchers.entity.Voucher;
+import com.pwdk.minpro_be.vouchers.service.VoucherService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,21 +22,24 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRoleService userRoleService;
+    private final VoucherService voucherService;
 
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserRoleService userRoleService){
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserRoleService userRoleService, VoucherService voucherService){
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRoleService = userRoleService;
+        this.voucherService = voucherService;
     }
 
     @Override
-    public User register(RegisterUserDto user) {
+    public User register(RegisterUserRequestDto user) {
 //        User newUser = user.toEntity();
         Optional<User> isEmailExist = userRepository.findByEmail(user.getEmail());
         if (isEmailExist.isPresent()) {
             throw new ApplicationException("User already exist");
         }
+
         User newUser = new User();
         newUser.setEmail(user.getEmail());
         newUser.setName(user.getName());
@@ -40,6 +47,15 @@ public class UserServiceImpl implements UserService {
         newUser.setPassword(password);
 
         var userRegistered  =  userRepository.save(newUser);
+
+        if (!user.getReferralCode().isEmpty() || !user.getReferralCode().isBlank()) {
+            Optional<User> referredUser = userRepository.findByReferralCode(user.getReferralCode());
+            // TO DO: adding point to user who shared their referral code
+
+            Voucher newUserVoucher = voucherService.getVoucherById(1L);
+            voucherService.addUserVoucher(userRegistered, newUserVoucher);
+        }
+
         userRoleService.role(user.getRole(), userRegistered);
         return userRegistered;
     }
@@ -66,5 +82,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public User profile() {
         return null;
+    }
+
+    @Override
+    public String generateReferralCode(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        Date today = new Date();
+        if (user.isEmpty()) {
+            throw new ApplicationException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        var userName = user.get().getName();
+        String referralCode = userName.replace(" ", "") + "Evently" + today.toString();
+        user.get().setReferralCode(referralCode);
+        userRepository.save(user.get());
+
+        return "Successfully create your referral code";
     }
 }

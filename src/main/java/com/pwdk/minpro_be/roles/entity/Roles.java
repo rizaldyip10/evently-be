@@ -29,14 +29,17 @@ public class Roles {
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")
+    @JsonIgnore
     private Instant createdAt;
 
     @Column(name = "updated_at")
     @ColumnDefault("CURRENT_TIMESTAMP")
+    @JsonIgnore
     private Instant updatedAt;
 
     @Column(name = "deleted_at")
     @ColumnDefault("CURRENT_TIMESTAMP")
+    @JsonIgnore
     private Instant deletedAt;
 
     @JsonIgnore

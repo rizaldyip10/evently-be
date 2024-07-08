@@ -1,9 +1,9 @@
 package com.pwdk.minpro_be.users.controller;
 
-import com.pwdk.minpro_be.responses.Response;
-import com.pwdk.minpro_be.users.dto.RegisterUserDto;
+import com.pwdk.minpro_be.auth.helpers.Claims;
 import com.pwdk.minpro_be.users.service.UserService;
 import lombok.extern.java.Log;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +19,11 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto){
-        return Response.success("User registered successfully", userService.register(registerUserDto));
-    }
+    @PostMapping("/referral-code")
+    public ResponseEntity<?> generateReferralCode() {
+        var claims = Claims.getClaimsFromJwt();
+        var email = (String) claims.get("sub");
 
-    @GetMapping("/profile")
-    public ResponseEntity<?>profile(@RequestBody String email){
-        return Response.success("User profile", userService.findByEmail(email));
+        return ResponseEntity.status(HttpStatus.CREATED.value()).body(userService.generateReferralCode(email));
     }
 }
