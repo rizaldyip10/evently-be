@@ -11,6 +11,8 @@ public interface EventService {
     void deleted_at(Long Id);
     Event findByUser (Event event);
 
+    Event findBySlug(String eventSlug);
+
 
 
 }
