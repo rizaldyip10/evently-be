@@ -7,13 +7,13 @@ import com.pwdk.minpro_be.vouchers.entity.UserVoucher;
 import com.pwdk.minpro_be.vouchers.entity.Voucher;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface VoucherService {
     List<UserVoucher> getUserVouchers(String email);
-    List<EventVoucher> getEventVouchers(Long eventId);
+    List<EventVoucher> getEventVouchers(String eventSlug);
     EventVoucher createEventVoucher(CreateVoucherRequestDto createVoucherRequestDto,
-                                    String eventSlug);
-    UserVoucher addUserVoucher(User user, Voucher voucher);
+                                    String eventSlug,
+                                    String userEmail);
+    void addUserVoucher(User user, Voucher voucher);
     Voucher getVoucherById(Long id);
 }

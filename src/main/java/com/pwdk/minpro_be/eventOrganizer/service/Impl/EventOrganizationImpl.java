@@ -37,7 +37,7 @@ public class EventOrganizationImpl implements EventOrganizationService {
         newEvent.setId(newEvent.getId());
 
         Optional<User> user = userRepository.findById(userId.getId());
-        if(event.isEmpty()){
+        if(user.isEmpty()){
             throw new ApplicationException("User not found");
         }
         newEvent.setUser(user.get());

@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.vouchers.service.impl;
 
+import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
 import com.pwdk.minpro_be.exception.ApplicationException;
 import com.pwdk.minpro_be.users.entity.User;
@@ -50,16 +51,21 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public List<EventVoucher> getEventVouchers(Long eventId) {
-        return eventVoucherRepository.findByEventId(eventId);
+    public List<EventVoucher> getEventVouchers(String eventSlug) {
+        Event event = eventService.findBySlug(eventSlug);
+        return eventVoucherRepository.findByEventId(event.getId());
     }
 
     @Override
     public EventVoucher createEventVoucher(
             CreateVoucherRequestDto createVoucherRequestDto,
-            String eventSlug
+            String eventSlug,
+            String userEmail
     ) {
+        var organizer = userService.findByEmail(userEmail);
         var event = eventService.findBySlug(eventSlug);
+
+//        var isEventAdmin
 
         Voucher newVoucher = new Voucher();
         EventVoucher newEventVoucher = new EventVoucher();
@@ -74,12 +80,12 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public UserVoucher addUserVoucher(User user, Voucher voucher) {
+    public void addUserVoucher(User user, Voucher voucher) {
         var newUserVoucher = new UserVoucher();
         newUserVoucher.setUser(user);
         newUserVoucher.setVoucher(voucher);
         newUserVoucher.setIsValid(true);
-        return newUserVoucher;
+        userVoucherRepository.save(newUserVoucher);
     }
 
     @Override
