@@ -28,10 +28,6 @@ public class UserController {
         var claims = Claims.getClaimsFromJwt();
         var email = (String) claims.get("sub");
 
-        SecurityContext ctx = SecurityContextHolder.getContext();
-        Authentication auth = ctx.getAuthentication();
-        log.info("User auth -> " + auth.toString());
-
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(userService.generateReferralCode(email));
     }
 }
