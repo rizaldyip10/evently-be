@@ -9,6 +9,7 @@ import com.pwdk.minpro_be.users.service.UserService;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 import com.pwdk.minpro_be.vouchers.entity.Voucher;
 import com.pwdk.minpro_be.vouchers.service.VoucherService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,12 @@ public class UserServiceImpl implements UserService {
     private final VoucherService voucherService;
 
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserRoleService userRoleService, VoucherService voucherService){
+    public UserServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            @Lazy UserRoleService userRoleService,
+            @Lazy VoucherService voucherService)
+    {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRoleService = userRoleService;

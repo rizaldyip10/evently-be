@@ -43,7 +43,7 @@ public class AuthController {
 
         UserAuth userDetails = (UserAuth) authentication.getPrincipal();
         log.info("Principal " + userDetails.getUsername());
-        log.info("Token requested for user: " + userDetails.getUsername() + "with role:" + userDetails.getAuthorities().toArray()[0]);
+        log.info("Token requested for user: " + userDetails.getUsername() + "with role: " + userDetails.getAuthorities().toArray()[0]);
         String token = authService.generateToken(authentication);
 
         LoginResponseDto response = new LoginResponseDto();
