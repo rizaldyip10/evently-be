@@ -21,10 +21,19 @@ public class VoucherController {
             @RequestBody CreateVoucherRequestDto createVoucherRequestDto,
             @PathVariable("event-slug") String eventSlug
     ) {
-        var createdEventVoucher = voucherService.createEventVoucher(createVoucherRequestDto, eventSlug);
+        var claims = Claims.getClaimsFromJwt();
+        var userEmail = (String) claims.get("sub");
+
+        var createdEventVoucher = voucherService.createEventVoucher(createVoucherRequestDto, eventSlug, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEventVoucher);
     }
 
+    @GetMapping("/{eventSlug}")
+    private ResponseEntity<?> getEventVouchers(@PathVariable("eventSlug") String eventSlug) {
+        return ResponseEntity.status(HttpStatus.OK).body(voucherService.getEventVouchers(eventSlug));
+    }
+
+    @GetMapping("/user-voucher")
     public ResponseEntity<?> getUserVouchers() {
         var claims = Claims.getClaimsFromJwt();
         var email = (String) claims.get("sub");
