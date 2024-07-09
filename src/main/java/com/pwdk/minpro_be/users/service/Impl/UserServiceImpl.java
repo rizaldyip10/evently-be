@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.users.service.Impl;
 
+import com.pwdk.minpro_be.point.service.PointService;
 import com.pwdk.minpro_be.userRole.service.UserRoleService;
 import com.pwdk.minpro_be.exception.ApplicationException;
 import com.pwdk.minpro_be.auth.dto.RegisterUserRequestDto;
@@ -24,18 +25,21 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRoleService userRoleService;
     private final VoucherService voucherService;
+    private final PointService pointService;
 
 
     public UserServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             @Lazy UserRoleService userRoleService,
-            @Lazy VoucherService voucherService)
+            @Lazy VoucherService voucherService,
+            @Lazy PointService pointService)
     {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRoleService = userRoleService;
         this.voucherService = voucherService;
+        this.pointService = pointService;
     }
 
     @Override
@@ -56,7 +60,11 @@ public class UserServiceImpl implements UserService {
 
         if (!user.getReferralCode().isEmpty() || !user.getReferralCode().isBlank()) {
             Optional<User> referredUser = userRepository.findByReferralCode(user.getReferralCode());
-            // TO DO: adding point to user who shared their referral code
+            if (referredUser.isEmpty()) {
+                throw new ApplicationException(HttpStatus.NOT_FOUND, "User not found");
+            }
+
+            pointService.addUserPoint(referredUser.get().getId(), 10000.0);
 
             Voucher newUserVoucher = voucherService.getVoucherById(1L);
             voucherService.addUserVoucher(userRegistered, newUserVoucher);
@@ -68,12 +76,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new ApplicationException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(()-> new ApplicationException("User not found"));
+        return userRepository.findById(id).orElseThrow(()-> new ApplicationException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
     @Override
