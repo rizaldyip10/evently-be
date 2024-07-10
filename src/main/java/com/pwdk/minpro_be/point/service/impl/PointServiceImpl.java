@@ -13,6 +13,7 @@ import com.pwdk.minpro_be.users.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -37,6 +38,7 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
+    @Transactional
     public String addUserPoint(Long id, Double pointAdded) {
         User referredUser = userService.findById(id);
         Optional<PointTrxType> income = pointTrxTypeRepository.findById(1L);

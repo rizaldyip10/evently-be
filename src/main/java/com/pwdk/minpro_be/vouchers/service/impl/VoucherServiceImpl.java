@@ -16,6 +16,7 @@ import com.pwdk.minpro_be.vouchers.service.VoucherService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +58,7 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
+    @Transactional
     public EventVoucher createEventVoucher(
             CreateVoucherRequestDto createVoucherRequestDto,
             String eventSlug,
