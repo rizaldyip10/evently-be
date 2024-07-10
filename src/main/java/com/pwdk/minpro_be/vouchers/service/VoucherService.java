@@ -16,4 +16,8 @@ public interface VoucherService {
                                     String userEmail);
     void addUserVoucher(User user, Voucher voucher);
     Voucher getVoucherById(Long id);
+
+    Voucher getVoucherByName(String voucherName);
+
+    EventVoucher getByEventIdAndVoucherId(Long eventId, Long voucherId);
 }

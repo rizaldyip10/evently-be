@@ -99,4 +99,16 @@ public class VoucherServiceImpl implements VoucherService {
 
         return voucher.get();
     }
+
+    @Override
+    public Voucher getVoucherByName(String voucherName) {
+        return voucherRepository.findByNameIgnoreCase(voucherName)
+                .orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "Voucher not found"));
+    }
+
+    @Override
+    public EventVoucher getByEventIdAndVoucherId(Long eventId, Long voucherId) {
+        return eventVoucherRepository.findByEventIdAndVoucherId(eventId, voucherId)
+                .orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "Event voucher not found"));
+    }
 }
