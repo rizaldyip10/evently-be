@@ -1,14 +1,20 @@
 package com.pwdk.minpro_be.review.controller;
 
 import com.pwdk.minpro_be.auth.helpers.Claims;
+import com.pwdk.minpro_be.responses.Response;
 import com.pwdk.minpro_be.review.dto.ReviewRequestDto;
 import com.pwdk.minpro_be.review.service.ReviewService;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/review")
+@Log
+
 public class ReviewController {
     private final ReviewService reviewService;
 
@@ -18,7 +24,7 @@ public class ReviewController {
 
     @GetMapping("/{eventSlug}")
     public ResponseEntity<?> getEventReviews(@PathVariable("eventSlug") String eventSlug) {
-        return ResponseEntity.status(HttpStatus.OK).body(reviewService.getEventReviews(eventSlug));
+        return Response.success("Event Review Fetched", reviewService.getEventReviews(eventSlug));
     }
 
     @PostMapping("/{eventSlug}")
@@ -28,7 +34,7 @@ public class ReviewController {
         var claims = Claims.getClaimsFromJwt();
         var email = (String) claims.get("sub");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(reviewService.createUserReview(requestDto, eventSlug, email));
+        return Response.success(HttpStatus.CREATED.value(), "Created", reviewService.createUserReview(requestDto, eventSlug, email));
     }
 
     @PutMapping("/user-review/{reviewId}")
@@ -38,9 +44,10 @@ public class ReviewController {
         var claims = Claims.getClaimsFromJwt();
         var email = (String) claims.get("sub");
 
-        reviewService.updateUserReview(requestDto, reviewId, email);
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        log.info("Security Context -> " + ctx.toString());
 
-        return ResponseEntity.status(HttpStatus.OK).body(reviewService);
+        return Response.success("Update success", reviewService.updateUserReview(requestDto, reviewId, email));
     }
 
     @DeleteMapping("/user-review/{reviewId}")
@@ -50,6 +57,6 @@ public class ReviewController {
 
         reviewService.deleteUserReview(reviewId, email);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Successfully delete review");
+        return Response.success("Delete Success");
     }
 }
