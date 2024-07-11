@@ -6,9 +6,9 @@ import com.pwdk.minpro_be.event.entity.Event;
 import java.util.List;
 
 public interface EventService {
-    Event createEvent(CreateEventDto event);
-    List<Event> findAll();
-    void deleted_at(Long Id);
+    Event createEvent(CreateEventDto event, String userEmail);
+    List<Event> findAllEvent();
+    void deleteEvent(Long eventId);
     Event findByUser (Event event);
 
     Event findBySlug(String eventSlug);
