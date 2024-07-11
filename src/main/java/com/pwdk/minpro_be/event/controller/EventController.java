@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.event.controller;
 
+import com.pwdk.minpro_be.auth.helpers.Claims;
 import com.pwdk.minpro_be.event.dto.CreateEventDto;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
@@ -20,12 +21,15 @@ public class EventController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createEvent(@RequestBody CreateEventDto createEventDto){
-        return Response.success("Event successfully created" , eventService.createEvent(createEventDto));
+        var claims = Claims.getClaimsFromJwt();
+        var email = (String) claims.get("sub");
+
+        return Response.success("Event successfully created" , eventService.createEvent(createEventDto, email));
 
     }
 
     @GetMapping
-    public ResponseEntity<Response<List<Event>>> findAll(){
-        return Response.success("Event created", eventService.findAll());
+    public ResponseEntity<Response<List<Event>>> findAllEvent(){
+        return Response.success("Event created", eventService.findAllEvent());
     }
 }
