@@ -1,5 +1,7 @@
 package com.pwdk.minpro_be.event.entity;
 
+import com.pwdk.minpro_be.event.dto.EventResponseDto;
+import com.pwdk.minpro_be.eventCategories.entity.EventCategories;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
 
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Setter
@@ -58,8 +61,9 @@ public class Event {
     @Column(name = "attention_info", nullable = false)
     private String attentionInfo;
 
-    @Column(name = "event_category_id", nullable = false)
-    private Long eventCategoryId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "event_category_id", nullable = false)
+    private EventCategories eventCategory;
 
     @Column(name = "event_image", nullable = false)
     private String eventImage;
@@ -78,19 +82,38 @@ public class Event {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
+        this.createdAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
+        this.updatedAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = Instant.now();
+        this.updatedAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
     }
 
     @PreRemove
     public void preRemove() {
-        this.deletedAt = Instant.now();
+        this.deletedAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
     }
 
+    public EventResponseDto toDto() {
+        EventResponseDto responseDto = new EventResponseDto();
+        responseDto.setName(this.name);
+        responseDto.setSlug(this.slug);
+        responseDto.setDate(this.date);
+        responseDto.setDescription(this.description);
+        responseDto.setLocation(this.location);
+        responseDto.setCity(this.city);
+        responseDto.setAttentionInfo(this.attentionInfo);
+        responseDto.setAudienceInfo(this.audianceInfo);
+        responseDto.setEventImg(this.eventImage);
+        responseDto.setStartTime(this.startTime);
+        responseDto.setEndTime(this.endTime);
+        responseDto.setUpdatedAt(this.updatedAt);
+        responseDto.setCreatedAt(this.createdAt);
+        responseDto.setEventCategories(this.eventCategory);
+
+        return responseDto;
+    }
 
 }

@@ -50,7 +50,6 @@ public class CreateEventDto {
     public Event toEntity(){
         Event event = new Event();
         event.setName(name);
-        event.setEventCategoryId(eventCategoryId);
         event.setDate(date);
         event.setDescription(description);
         event.setLocation(location);

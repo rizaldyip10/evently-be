@@ -2,15 +2,20 @@ package com.pwdk.minpro_be.event.service.Impl;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.pwdk.minpro_be.event.dto.CreateEventDto;
+import com.pwdk.minpro_be.event.dto.EventResponseDto;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.helper.SlugGen;
 import com.pwdk.minpro_be.event.repository.EventRepository;
 import com.pwdk.minpro_be.event.service.EventService;
+import com.pwdk.minpro_be.eventCategories.repository.EventCategoryRepo;
 import com.pwdk.minpro_be.eventOrganizer.entity.EventOrganizer;
 import com.pwdk.minpro_be.eventOrganizer.service.EventOrganizationService;
 import com.pwdk.minpro_be.exception.ApplicationException;
+import com.pwdk.minpro_be.exception.DataNotFoundException;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +30,14 @@ public class EventServiceImpl implements EventService {
     private final SlugGen slugGen;
     private final EventOrganizationService eventOrganizationService;
     private final UserService userService;
+    private final EventCategoryRepo eventCategoryRepo;
 
-    public EventServiceImpl(EventRepository eventRepository, SlugGen slugGen, EventOrganizationService eventOrganizationService, UserService userService) {
+    public EventServiceImpl(EventRepository eventRepository, SlugGen slugGen, EventOrganizationService eventOrganizationService, UserService userService, EventCategoryRepo eventCategoryRepo) {
         this.eventRepository = eventRepository;
         this.slugGen = slugGen;
         this.eventOrganizationService = eventOrganizationService;
         this.userService = userService;
+        this.eventCategoryRepo = eventCategoryRepo;
     }
 
 
@@ -43,9 +50,12 @@ public class EventServiceImpl implements EventService {
         if (isSlugExist.isPresent()) {
             var random = new Random();
             char[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k'};
-            eventSlug = eventSlug + NanoIdUtils.randomNanoId(random, alphabet, 5);
+            eventSlug = eventSlug + NanoIdUtils.randomNanoId(random, alphabet, 12);
         }
         newEvent.setSlug(eventSlug);
+        var category = eventCategoryRepo.findById(event.getEventCategoryId())
+                .orElseThrow(() -> new DataNotFoundException("Category not found"));
+        newEvent.setEventCategory(category);
         var createdEvent = eventRepository.save(newEvent);
 
         User user = userService.findByEmail(userEmail);
@@ -55,8 +65,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findAllEvent() {
-        return eventRepository.findAllAndDeletedAtIsNull();
+    public Page<EventResponseDto> findAllEvent(Pageable pageable) {
+        return eventRepository.findAllAndDeletedAtIsNull(pageable)
+                .map(Event::toDto);
     }
 
 
