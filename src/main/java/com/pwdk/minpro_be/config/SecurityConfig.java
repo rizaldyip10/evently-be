@@ -71,7 +71,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/auth/login").permitAll();
                     auth.requestMatchers("/api/v1/auth/register").permitAll();
                     auth.requestMatchers("/api/v1/event/create").permitAll();
-                    auth.requestMatchers("api/v1/event").permitAll();
+                    auth.requestMatchers("/api/v1/event").permitAll();
                     auth.requestMatchers("/api/v1/ticket").permitAll();
                     auth.requestMatchers("/api/v1/role").permitAll();
                     auth.requestMatchers("/api/v1/categories/**").permitAll();

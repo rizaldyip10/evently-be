@@ -10,6 +10,7 @@ import lombok.Getter;
 import jakarta.persistence.*;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import java.time.Instant;
 import java.util.List;

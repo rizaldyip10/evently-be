@@ -29,9 +29,9 @@ public class EventCategories {
 
     @Column(name = "updated_at")
     @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant updated_at;
+    private Instant updatedAt;
 
     @Column(name = "deleted_at")
     @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant deleted_at;
+    private Instant deletedAt;
 }

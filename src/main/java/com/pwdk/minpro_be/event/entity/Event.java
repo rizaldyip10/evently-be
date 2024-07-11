@@ -1,5 +1,7 @@
 package com.pwdk.minpro_be.event.entity;
 
+import com.pwdk.minpro_be.event.dto.EventResponseDto;
+import com.pwdk.minpro_be.eventCategories.entity.EventCategories;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
 
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Setter
@@ -47,40 +50,70 @@ public class Event {
     private String description;
 
     @Column(name = "start_time", nullable = false)
-    private Date start_time;
+    private Date startTime;
 
     @Column(name = "end_time", nullable = false)
-    private Date end_time;
+    private Date endTime;
 
     @Column(name = "audiance_info", nullable = false)
-    private String audiance_info;
+    private String audianceInfo;
 
     @Column(name = "attention_info", nullable = false)
-    private String attention_info;
+    private String attentionInfo;
 
-    @Column(name = "event_category_id", nullable = false)
-    private Long event_category_id;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "event_category_id", nullable = false)
+    private EventCategories eventCategory;
 
     @Column(name = "event_image", nullable = false)
-    private String event_image;
+    private String eventImage;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
-    private Instant created_at;
+    private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
     @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant updated_at;
+    private Instant updatedAt;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "deleted_at", nullable = false)
-    private Instant deleted_at;
+    private Instant deletedAt;
 
     @PrePersist
-    protected void onCreate(){
-        this.created_at = Instant.now();
-        this.updated_at = Instant.now();
+    public void prePersist() {
+        this.createdAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
+        this.updatedAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
     }
 
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    @PreRemove
+    public void preRemove() {
+        this.deletedAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    public EventResponseDto toDto() {
+        EventResponseDto responseDto = new EventResponseDto();
+        responseDto.setName(this.name);
+        responseDto.setSlug(this.slug);
+        responseDto.setDate(this.date);
+        responseDto.setDescription(this.description);
+        responseDto.setLocation(this.location);
+        responseDto.setCity(this.city);
+        responseDto.setAttentionInfo(this.attentionInfo);
+        responseDto.setAudienceInfo(this.audianceInfo);
+        responseDto.setEventImg(this.eventImage);
+        responseDto.setStartTime(this.startTime);
+        responseDto.setEndTime(this.endTime);
+        responseDto.setUpdatedAt(this.updatedAt);
+        responseDto.setCreatedAt(this.createdAt);
+        responseDto.setEventCategories(this.eventCategory);
+
+        return responseDto;
+    }
 
 }
