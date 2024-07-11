@@ -41,4 +41,20 @@ public class EventOrganizer {
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
+    }
+
+    @PreRemove
+    public void preRemove() {
+        this.deletedAt = Instant.now();
+    }
 }

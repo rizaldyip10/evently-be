@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Log
 public class EventCategoryController {
 
-    private EventCategoriesService eventCategoriesService;
+    private final EventCategoriesService eventCategoriesService;
 
     public EventCategoryController (EventCategoriesService eventCategoriesService){
         this.eventCategoriesService = eventCategoriesService;

@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.event.dto;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.users.entity.User;
 import jakarta.validation.constraints.NotBlank;
@@ -37,9 +38,11 @@ public class CreateEventDto {
     private String event_img;
 
     @NotBlank(message = "Event start time is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private Date start_time;
 
     @NotBlank(message = "Event end time is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private Date end_time;
 
 
@@ -47,16 +50,16 @@ public class CreateEventDto {
     public Event toEntity(){
         Event event = new Event();
         event.setName(name);
-        event.setEvent_category_id(eventCategoryId);
+        event.setEventCategoryId(eventCategoryId);
         event.setDate(date);
         event.setDescription(description);
         event.setLocation(location);
         event.setCity(city);
-        event.setAudiance_info(audiance_info);
-        event.setAttention_info(attention_info);
-        event.setEvent_image(event_img);
-        event.setStart_time(start_time);
-        event.setEnd_time(end_time);
+        event.setAudianceInfo(audiance_info);
+        event.setAttentionInfo(attention_info);
+        event.setEventImage(event_img);
+        event.setStartTime(start_time);
+        event.setEndTime(end_time);
         return event;
     }
 }

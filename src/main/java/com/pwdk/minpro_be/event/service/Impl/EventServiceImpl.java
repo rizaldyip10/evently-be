@@ -13,6 +13,7 @@ import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ public class EventServiceImpl implements EventService {
     }
 
 
+    @Transactional
     @Override
     public Event createEvent(CreateEventDto event, String userEmail) {
         Event newEvent = event.toEntity();

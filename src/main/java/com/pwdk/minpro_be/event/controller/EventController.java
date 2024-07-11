@@ -5,6 +5,7 @@ import com.pwdk.minpro_be.event.dto.CreateEventDto;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
 import com.pwdk.minpro_be.responses.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class EventController {
         var claims = Claims.getClaimsFromJwt();
         var email = (String) claims.get("sub");
 
-        return Response.success("Event successfully created" , eventService.createEvent(createEventDto, email));
+        return Response.success(HttpStatus.CREATED.value(), "Event successfully created" , eventService.createEvent(createEventDto, email));
 
     }
 
