@@ -85,6 +85,10 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST, "/api/v1/review/{eventSlug}").hasAuthority("SCOPE_ROLE_USER");
                     auth.requestMatchers(HttpMethod.PUT, "/api/v1/review/user-review/{reviewId}").hasAuthority("SCOPE_ROLE_USER");
                     auth.requestMatchers(HttpMethod.DELETE, "/api/v1/review/user-review/{reviewId}").hasAnyAuthority("SCOPE_ROLE_USER", "SCOPE_ROLE_ORGANIZER");
+                    auth.requestMatchers(HttpMethod.POST, "/api/v1/transactions/{eventSlug}").hasAuthority("SCOPE_ROLE_USER");
+                    auth.requestMatchers("/api/v1/transactions/{eventSlug}/{trxId}").hasAuthority("SCOPE_ROLE_USER");
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/transactions/event/{eventSlug}").hasAuthority("SCOPE_ROLE_ORGANIZER");
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/transactions/user").hasAuthority("SCOPE_ROLE_USER");
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

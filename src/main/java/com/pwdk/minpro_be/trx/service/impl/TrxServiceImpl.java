@@ -18,21 +18,26 @@ import com.pwdk.minpro_be.trx.service.TrxService;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import com.pwdk.minpro_be.vouchers.entity.EventVoucher;
+import com.pwdk.minpro_be.vouchers.entity.UserVoucher;
 import com.pwdk.minpro_be.vouchers.entity.Voucher;
 import com.pwdk.minpro_be.vouchers.service.VoucherService;
+import lombok.extern.java.Log;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Log
 public class TrxServiceImpl implements TrxService {
     private final TrxRepository trxRepository;
     private final TrxItemRepository trxItemRepository;
@@ -87,6 +92,7 @@ public class TrxServiceImpl implements TrxService {
         return trxRepository.save(newTrx);
     }
 
+    @Transactional
     @Override
     public Trx addingTrxItem(TicketTrxRequestDto ticketTrxRequestDto,
                              String userEmail,
@@ -124,6 +130,9 @@ public class TrxServiceImpl implements TrxService {
                 newTrxItem.setAmount(ticketDto.getAmount());
                 trxItemRepository.save(newTrxItem);
 
+                var updatedTicketQuota = ticket.get().getQuota() - ticketDto.getAmount();
+                ticketService.updateTicketQuota(ticket.get().getId(), updatedTicketQuota);
+
                 totalPrice = totalPrice + (ticketDto.getAmount() * ticketDto.getPrice());
             }
         }
@@ -133,6 +142,7 @@ public class TrxServiceImpl implements TrxService {
         return trxRepository.save(trx.get());
     }
 
+    @Transactional
     @Override
     public Trx addingPaymentMethod(PaymentRequestDto paymentRequestDto,
                                    String userEmail,
@@ -143,6 +153,7 @@ public class TrxServiceImpl implements TrxService {
         Event event = eventService.findBySlug(eventSlug);
         Optional<Trx> trx = trxRepository.findById(trxId);
         Instant now = Instant.now();
+        List<Voucher> trxVoucher = new ArrayList<>();
 
         if (trx.isEmpty()) {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Transaction not found");
@@ -156,22 +167,36 @@ public class TrxServiceImpl implements TrxService {
             throw new ApplicationException(HttpStatus.CONFLICT, "Event not match. You cannot access this transaction");
         }
 
-        double totalDiscountedPrice = 0.0;
+        double totalDiscountedPrice = 0;
         double endPrice = trx.get().getTotalPrice();
 
         if (!paymentRequestDto.getVouchers().isEmpty()) {
             for (VoucherPaymentDto voucherDto : paymentRequestDto.getVouchers()) {
                 Voucher voucher = voucherService.getVoucherByName(voucherDto.getName());
-                EventVoucher eventVoucher = voucherService.getByEventIdAndVoucherId(event.getId(), voucher.getId());
+                Optional<EventVoucher> eventVoucher = voucherService.getByEventIdAndVoucherId(event.getId(), voucher.getId());
+                if (eventVoucher.isPresent()) {
+                    if (now.isAfter(eventVoucher.get().getExpiredAt())) {
+                        throw new ApplicationException(HttpStatus.BAD_REQUEST, "Voucher is expired");
+                    }
 
-                if (now.isAfter(eventVoucher.getExpiredAt())) {
-                    throw new ApplicationException(HttpStatus.BAD_REQUEST, "Voucher is expired");
+                    var newTrxPromo = new TrxPromo();
+                    newTrxPromo.setVoucher(voucher);
+                    newTrxPromo.setTrx(trx.get());
+                    trxPromoRepository.save(newTrxPromo);
+                    trxVoucher.add(voucher);
                 }
 
-                var newTrxPromo = new TrxPromo();
-                newTrxPromo.setVoucher(voucher);
-                newTrxPromo.setTrx(trx.get());
-                trxPromoRepository.save(newTrxPromo);
+                Optional<UserVoucher> userVoucher = voucherService.getByUserIdAndVoucherId(user.getId(), voucher.getId());
+                if (userVoucher.isPresent()) {
+                    if (!userVoucher.get().getIsValid()) {
+                        throw new ApplicationException(HttpStatus.BAD_REQUEST, "Your voucher is not valid");
+                    }
+                    var newTrxPromo = new TrxPromo();
+                    newTrxPromo.setVoucher(voucher);
+                    newTrxPromo.setTrx(trx.get());
+                    trxPromoRepository.save(newTrxPromo);
+                    trxVoucher.add(voucher);
+                }
 
                 totalDiscountedPrice = totalDiscountedPrice + (endPrice * voucher.getDiscount().doubleValue());
                 endPrice = endPrice - totalDiscountedPrice;
@@ -187,6 +212,7 @@ public class TrxServiceImpl implements TrxService {
         trx.get().setFinalPrice(endPrice);
         trx.get().setPaymentMethod(paymentMethod);
         trx.get().setPaymentStatus(paymentStatus);
+        trx.get().setVouchers(trxVoucher);
         return trxRepository.save(trx.get());
     }
 
@@ -218,7 +244,18 @@ public class TrxServiceImpl implements TrxService {
             throw new ApplicationException(HttpStatus.CONFLICT, "User not match");
         }
 
+        if (!trx.getTrxItems().isEmpty()) {
+            for (TrxItem trxItem : trx.getTrxItems()) {
+                Ticket ticket = ticketService.getTicketById(trxItem.getTicket().getId())
+                        .orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "Ticket not found"));
+
+                var updatedTicketQuota = ticket.getQuota() + trxItem.getAmount();
+                ticketService.updateTicketQuota(ticket.getId(), updatedTicketQuota);
+            }
+        }
+
         trx.setDeletedAt(Instant.now().atZone(ZoneId.systemDefault()).toInstant());
+        trxRepository.save(trx);
         return "Transaction deleted";
     }
 }

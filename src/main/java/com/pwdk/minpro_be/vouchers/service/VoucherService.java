@@ -7,6 +7,7 @@ import com.pwdk.minpro_be.vouchers.entity.UserVoucher;
 import com.pwdk.minpro_be.vouchers.entity.Voucher;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface VoucherService {
     List<UserVoucher> getUserVouchers(String email);
@@ -19,5 +20,6 @@ public interface VoucherService {
 
     Voucher getVoucherByName(String voucherName);
 
-    EventVoucher getByEventIdAndVoucherId(Long eventId, Long voucherId);
+    Optional<EventVoucher> getByEventIdAndVoucherId(Long eventId, Long voucherId);
+    Optional<UserVoucher> getByUserIdAndVoucherId(Long userId, Long voucherId);
 }

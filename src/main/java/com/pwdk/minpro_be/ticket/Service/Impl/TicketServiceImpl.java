@@ -8,6 +8,7 @@ import com.pwdk.minpro_be.ticket.Service.TicketService;
 import com.pwdk.minpro_be.ticket.dto.CreateTicketDto;
 import com.pwdk.minpro_be.ticket.entity.Ticket;
 import com.pwdk.minpro_be.ticket.repository.TicketRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,6 +49,15 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public List<Ticket> findTicketByEventId(Long eventId) {
         return ticketRepository.findByEventId(eventId);
+    }
+
+    @Override
+    public void updateTicketQuota(Long ticketId, int updatedQuota) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "Ticket not found"));
+
+        ticket.setQuota(updatedQuota);
+        ticketRepository.save(ticket);
     }
 
 

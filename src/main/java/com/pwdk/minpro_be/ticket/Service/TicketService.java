@@ -11,4 +11,5 @@ public interface TicketService {
     Optional<Ticket> getTicketById(Long id);
     List<Ticket> findAllTickets();
     List<Ticket> findTicketByEventId(Long eventId);
+    void updateTicketQuota(Long ticketId, int updatedQuota);
 }

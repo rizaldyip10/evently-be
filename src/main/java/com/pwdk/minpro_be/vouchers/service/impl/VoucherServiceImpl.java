@@ -107,8 +107,12 @@ public class VoucherServiceImpl implements VoucherService {
     }
 
     @Override
-    public EventVoucher getByEventIdAndVoucherId(Long eventId, Long voucherId) {
-        return eventVoucherRepository.findByEventIdAndVoucherId(eventId, voucherId)
-                .orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "Event voucher not found"));
+    public Optional<EventVoucher> getByEventIdAndVoucherId(Long eventId, Long voucherId) {
+        return eventVoucherRepository.findByEventIdAndVoucherId(eventId, voucherId);
+    }
+
+    @Override
+    public Optional<UserVoucher> getByUserIdAndVoucherId(Long userId, Long voucherId) {
+        return userVoucherRepository.findByUserIdAndVoucherId(userId, voucherId);
     }
 }
