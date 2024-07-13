@@ -2,6 +2,7 @@ package com.pwdk.minpro_be.users.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pwdk.minpro_be.roles.entity.Roles;
 import com.pwdk.minpro_be.userRole.Entity.UserRole;
+import com.pwdk.minpro_be.users.dto.UserDto;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -82,5 +83,14 @@ public class User {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public UserDto toUserDto() {
+        UserDto userDto = new UserDto();
+        userDto.setName(this.name);
+        userDto.setEmail(this.email);
+        userDto.setProfileImg(profileImg);
+        userDto.setRoles(this.roles);
+        return userDto;
     }
 }

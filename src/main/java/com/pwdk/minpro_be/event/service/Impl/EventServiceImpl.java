@@ -7,6 +7,7 @@ import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.helper.SlugGen;
 import com.pwdk.minpro_be.event.repository.EventRepository;
 import com.pwdk.minpro_be.event.service.EventService;
+import com.pwdk.minpro_be.event.spec.EventSpecification;
 import com.pwdk.minpro_be.eventCategories.repository.EventCategoryRepo;
 import com.pwdk.minpro_be.eventOrganizer.entity.EventOrganizer;
 import com.pwdk.minpro_be.eventOrganizer.service.EventOrganizationService;
@@ -16,13 +17,16 @@ import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -45,11 +49,23 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event createEvent(CreateEventDto event, String userEmail) {
         Event newEvent = event.toEntity();
+
+        LocalDate eventDate = event.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalTime eventStartTime = event.getStart_time().toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+        LocalTime eventEndTime = event.getEnd_time().toInstant().atZone(ZoneId.systemDefault()).toLocalTime();
+
+        ZonedDateTime eventStartDateTime = ZonedDateTime.of(eventDate, eventStartTime, ZoneId.systemDefault());
+        ZonedDateTime eventEndDateTime = ZonedDateTime.of(eventDate, eventEndTime, ZoneId.systemDefault());
+
+        newEvent.setDate(Date.from(eventStartDateTime.toInstant()));
+        newEvent.setStartTime(Date.from(eventStartDateTime.toInstant()));
+        newEvent.setEndTime(Date.from(eventEndDateTime.toInstant()));
+
         String eventSlug = slugGen.slugGenerator(event.getName());
         var isSlugExist = eventRepository.findBySlug(eventSlug);
         if (isSlugExist.isPresent()) {
             var random = new Random();
-            char[] alphabet = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k'};
+            char[] alphabet = "abcdefghijklmnopqrstuvwxyz1234567890".toCharArray();
             eventSlug = eventSlug + NanoIdUtils.randomNanoId(random, alphabet, 12);
         }
         newEvent.setSlug(eventSlug);
@@ -65,9 +81,20 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Page<EventResponseDto> findAllEvent(Pageable pageable) {
-        return eventRepository.findAllAndDeletedAtIsNull(pageable)
-                .map(Event::toDto);
+    public Page<EventResponseDto> findAllEvent(
+            Pageable pageable,
+            String searchedEventName,
+            String searchedCategory,
+            String searchedCity,
+            Date searchedDate
+    ) {
+        Specification<Event> spec = Specification.where(EventSpecification.isNotDeleted())
+                .and(EventSpecification.hasCategories(searchedCategory))
+                .and(EventSpecification.hasDate(searchedDate))
+                .and(EventSpecification.hasCities(searchedCity))
+                .and(EventSpecification.hasName(searchedEventName));
+
+        return eventRepository.findAll(spec, pageable).map(Event::toDto);
     }
 
 

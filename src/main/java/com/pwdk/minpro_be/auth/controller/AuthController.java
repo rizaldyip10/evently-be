@@ -5,6 +5,7 @@ import com.pwdk.minpro_be.auth.entity.UserAuth;
 import com.pwdk.minpro_be.auth.helpers.Claims;
 import com.pwdk.minpro_be.auth.service.AuthService;
 import com.pwdk.minpro_be.responses.Response;
+import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import jakarta.servlet.http.Cookie;
 import org.slf4j.Logger;
@@ -49,6 +50,9 @@ public class AuthController {
         LoginResponseDto response = new LoginResponseDto();
         response.setMessage("User logged in successfully");
         response.setToken(token);
+
+        User loggedInUser = userService.findByEmail(userDetails.getUsername());
+        response.setUser(loggedInUser.toUserDto());
 
         Cookie cookie = new Cookie("sid", token);
         HttpHeaders headers = new HttpHeaders();

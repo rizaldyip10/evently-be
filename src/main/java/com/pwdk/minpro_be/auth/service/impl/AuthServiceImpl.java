@@ -3,7 +3,6 @@ package com.pwdk.minpro_be.auth.service.impl;
 import com.pwdk.minpro_be.auth.repository.AuthRedisRepository;
 import com.pwdk.minpro_be.auth.service.AuthService;
 import com.pwdk.minpro_be.users.repository.UserRepository;
-import lombok.extern.java.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -18,18 +17,16 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
-@Log
+
 @Service
 public class AuthServiceImpl implements AuthService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
     private final JwtEncoder jwtEncoder;
-    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthRedisRepository authRedisRepository;
 
-    public AuthServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, JwtEncoder jwtEncoder, AuthRedisRepository authRedisRepository){
-        this.passwordEncoder = passwordEncoder;
+    public AuthServiceImpl(UserRepository userRepository, JwtEncoder jwtEncoder, AuthRedisRepository authRedisRepository){
         this.userRepository = userRepository;
         this.jwtEncoder = jwtEncoder;
         this.authRedisRepository = authRedisRepository;

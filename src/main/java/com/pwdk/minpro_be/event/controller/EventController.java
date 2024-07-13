@@ -35,12 +35,12 @@ public class EventController {
     public ResponseEntity<?> findAllEvent(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
-            @RequestParam(required = false) String eventName,
-            @RequestParam(required = false) String[] searchedCategory,
-            @RequestParam(required = false) String[] searchedLocation,
-            @RequestParam(required = false) Date searchedDate,
-            @RequestParam(required = false) String searchedPrice
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Date date
             ){
-        return Response.success("Event created", eventService.findAllEvent(PageRequest.of(page, size)));
+        return Response.success("Event list fetched",
+                eventService.findAllEvent(PageRequest.of(page, size), name, category, city, date));
     }
 }
