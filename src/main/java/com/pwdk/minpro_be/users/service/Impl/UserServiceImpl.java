@@ -1,5 +1,7 @@
 package com.pwdk.minpro_be.users.service.Impl;
 
+import com.pwdk.minpro_be.exception.DataConflictException;
+import com.pwdk.minpro_be.exception.DataNotFoundException;
 import com.pwdk.minpro_be.point.service.PointService;
 import com.pwdk.minpro_be.userRole.service.UserRoleService;
 import com.pwdk.minpro_be.exception.ApplicationException;
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService {
 //        User newUser = user.toEntity();
         Optional<User> isEmailExist = userRepository.findByEmail(user.getEmail());
         if (isEmailExist.isPresent()) {
-            throw new ApplicationException("User already exist");
+            throw new DataConflictException("User already exist");
         }
 
         User newUser = new User();
@@ -60,10 +62,10 @@ public class UserServiceImpl implements UserService {
 
         var userRegistered  =  userRepository.save(newUser);
 
-        if (!user.getReferralCode().isEmpty() || !user.getReferralCode().isBlank()) {
+        if (user.getReferralCode() != null) {
             Optional<User> referredUser = userRepository.findByReferralCode(user.getReferralCode());
             if (referredUser.isEmpty()) {
-                throw new ApplicationException(HttpStatus.NOT_FOUND, "User not found");
+                throw new DataNotFoundException("User not found");
             }
 
             pointService.addUserPoint(referredUser.get().getId(), 10000.0);
@@ -78,12 +80,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new ApplicationException(HttpStatus.NOT_FOUND, "User not found"));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
     }
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(()-> new ApplicationException(HttpStatus.NOT_FOUND, "User not found"));
+        return userRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException("User not found"));
     }
 
     @Override
@@ -105,7 +109,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findByEmail(email);
         Date today = new Date();
         if (user.isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "User not found");
+            throw new DataNotFoundException("User not found");
         }
 
         var userName = user.get().getName();

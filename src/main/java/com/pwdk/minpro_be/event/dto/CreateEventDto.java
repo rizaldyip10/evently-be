@@ -50,15 +50,12 @@ public class CreateEventDto {
     public Event toEntity(){
         Event event = new Event();
         event.setName(name);
-        event.setDate(date);
         event.setDescription(description);
         event.setLocation(location);
         event.setCity(city);
         event.setAudianceInfo(audiance_info);
         event.setAttentionInfo(attention_info);
         event.setEventImage(event_img);
-        event.setStartTime(start_time);
-        event.setEndTime(end_time);
         return event;
     }
 }

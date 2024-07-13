@@ -42,10 +42,12 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public class SecurityConfig {
     private final RsaKeyConfigProperties rsaKeyConfigProperties;
     private final UserDetailsServiceImpl userDetailsService;
+    private final CorsConfigSourceImpl corsConfigSource;
 
-    public SecurityConfig(RsaKeyConfigProperties rsaKeyConfigProperties, UserDetailsServiceImpl userDetailsService){
+    public SecurityConfig(RsaKeyConfigProperties rsaKeyConfigProperties, UserDetailsServiceImpl userDetailsService, CorsConfigSourceImpl corsConfigSource){
         this.rsaKeyConfigProperties = rsaKeyConfigProperties;
         this.userDetailsService = userDetailsService;
+        this.corsConfigSource = corsConfigSource;
     }
 
     @Bean
@@ -65,7 +67,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigSource))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/error/**").permitAll();
                     auth.requestMatchers("/api/v1/auth/login").permitAll();

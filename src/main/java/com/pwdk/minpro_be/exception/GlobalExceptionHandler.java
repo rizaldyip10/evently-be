@@ -21,6 +21,11 @@ public class GlobalExceptionHandler {
         return Response.failed(HttpStatus.NOT_FOUND.value(), ex.getMessage());
     }
 
+    @ExceptionHandler(DataConflictException.class)
+    public final ResponseEntity<Response<String>> handleProductConflict(DataConflictException ex) {
+        return Response.failed(HttpStatus.CONFLICT.value(), ex.getMessage());
+    }
+
     @ExceptionHandler(ApplicationException.class)
     public final ResponseEntity<Response<String>> handleProductNotFoundException(ApplicationException ex) {
         return Response.failed(HttpStatus.BAD_REQUEST.value(), "Unable to process the request", ex.getMessage());
