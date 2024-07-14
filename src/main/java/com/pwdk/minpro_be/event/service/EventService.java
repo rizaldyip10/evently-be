@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -16,12 +17,12 @@ public interface EventService {
                                         String searchedEventName,
                                         String searchedCategory,
                                         String searchedCity,
-                                        Date searchedDate);
+                                        LocalDate searchedDate);
     void deleteEvent(Long eventId);
     Event findByUser (Event event);
 
     Event findBySlug(String eventSlug);
 
-
+    Page<String> findAllEventCities(Pageable pageable);
 
 }

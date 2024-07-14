@@ -5,11 +5,16 @@ import com.pwdk.minpro_be.event.dto.CreateEventDto;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
 import com.pwdk.minpro_be.responses.Response;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -35,12 +40,29 @@ public class EventController {
     public ResponseEntity<?> findAllEvent(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size,
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String event,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) Date date
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
             ){
         return Response.success("Event list fetched",
-                eventService.findAllEvent(PageRequest.of(page, size), name, category, city, date));
+                eventService.findAllEvent(PageRequest.of(page, size), event, category, city, date));
+    }
+
+    @GetMapping("/cities")
+    public ResponseEntity<?> getAllCities(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "city") String sortBy
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        Page<String> cities = eventService.findAllEventCities(pageable);
+        return Response.success("City list fetched", cities);
+    }
+
+    @GetMapping("/{eventSlug}")
+    public ResponseEntity<?> getEventDetail(@PathVariable("eventSlug") String eventSlug) {
+        var eventDetail = eventService.findBySlug(eventSlug);
+        return Response.success("Event detail fetched", eventDetail.toDto());
     }
 }

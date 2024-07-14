@@ -80,19 +80,21 @@ public class EventServiceImpl implements EventService {
         return createdEvent;
     }
 
+    @Transactional
     @Override
     public Page<EventResponseDto> findAllEvent(
             Pageable pageable,
             String searchedEventName,
             String searchedCategory,
             String searchedCity,
-            Date searchedDate
+            LocalDate searchedDate
     ) {
         Specification<Event> spec = Specification.where(EventSpecification.isNotDeleted())
                 .and(EventSpecification.hasCategories(searchedCategory))
                 .and(EventSpecification.hasDate(searchedDate))
                 .and(EventSpecification.hasCities(searchedCity))
-                .and(EventSpecification.hasName(searchedEventName));
+                .and(EventSpecification.hasName(searchedEventName))
+                .and(EventSpecification.upcomingEvent());
 
         return eventRepository.findAll(spec, pageable).map(Event::toDto);
     }
@@ -115,6 +117,11 @@ public class EventServiceImpl implements EventService {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Event not found");
         }
         return event.get();
+    }
+
+    @Override
+    public Page<String> findAllEventCities(Pageable pageable) {
+        return eventRepository.findAllDistinctCities(pageable);
     }
 
 
