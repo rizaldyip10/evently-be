@@ -1,10 +1,7 @@
 package com.pwdk.minpro_be.eventCategories.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -18,8 +15,9 @@ import java.time.Instant;
 public class EventCategories {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long Id;
+    private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -27,7 +25,7 @@ public class EventCategories {
     @JsonIgnore
     @Column(name = "created_at")
     @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant created_at;
+    private Instant createdAt;
 
     @JsonIgnore
     @Column(name = "updated_at")

@@ -72,7 +72,9 @@ public class SecurityConfig {
                     auth.requestMatchers("/error/**").permitAll();
                     auth.requestMatchers("/api/v1/auth/login").permitAll();
                     auth.requestMatchers("/api/v1/auth/register").permitAll();
-                    auth.requestMatchers("/api/v1/event/create").permitAll();
+                    auth.requestMatchers("/api/v1/event/create").hasAuthority("SCOPE_ROLE_ORGANIZER");
+                    auth.requestMatchers("/api/v1/event/cities").permitAll();
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/event/{eventSlug}").permitAll();
                     auth.requestMatchers("/api/v1/event").permitAll();
                     auth.requestMatchers("/api/v1/ticket").permitAll();
                     auth.requestMatchers("/api/v1/role").permitAll();

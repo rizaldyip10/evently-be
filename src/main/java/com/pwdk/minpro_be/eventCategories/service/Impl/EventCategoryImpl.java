@@ -4,6 +4,8 @@ import com.pwdk.minpro_be.eventCategories.entity.EventCategories;
 import com.pwdk.minpro_be.eventCategories.repository.EventCategoryRepo;
 import com.pwdk.minpro_be.eventCategories.service.EventCategoriesService;
 import com.pwdk.minpro_be.exception.ApplicationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +23,8 @@ public class EventCategoryImpl implements EventCategoriesService {
 
 
     @Override
-    public List<EventCategories> findAllCategory() {
-        return eventCategoryRepo.findAll();
+    public Page<EventCategories> findAllCategory(Pageable pageable) {
+        return eventCategoryRepo.findAll(pageable);
     }
 
     @Override
