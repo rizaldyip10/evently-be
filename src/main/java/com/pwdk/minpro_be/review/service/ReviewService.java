@@ -1,12 +1,15 @@
 package com.pwdk.minpro_be.review.service;
 
 import com.pwdk.minpro_be.review.dto.ReviewRequestDto;
+import com.pwdk.minpro_be.review.dto.ReviewResponseDto;
 import com.pwdk.minpro_be.review.entity.Review;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ReviewService {
-    List<Review> getEventReviews(String eventSlug);
+    Page<ReviewResponseDto> getEventReviews(String eventSlug, Pageable pageable);
 
     Review createUserReview(ReviewRequestDto reviewDto, String eventSlug, String userEmail);
 

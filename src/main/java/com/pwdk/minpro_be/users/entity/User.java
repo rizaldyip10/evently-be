@@ -36,11 +36,13 @@ public class User {
     @Column(name = "email", nullable = false, length = 100)
     private String email;
 
+    @JsonIgnore
     @NotNull(message = "Password is required")
     @Size(max = 100)
     @Column(name = "password", nullable = false, length = 100)
     private String password;
 
+    @JsonIgnore
     @Column(name = "phone")
     private Integer phone;
 
@@ -66,6 +68,8 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @JsonIgnore
+    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "deleted_at")
     private Instant deletedAt;
 

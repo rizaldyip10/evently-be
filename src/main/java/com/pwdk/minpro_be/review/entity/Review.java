@@ -2,6 +2,7 @@ package com.pwdk.minpro_be.review.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pwdk.minpro_be.event.entity.Event;
+import com.pwdk.minpro_be.review.dto.ReviewResponseDto;
 import com.pwdk.minpro_be.users.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ public class Review {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
@@ -65,5 +67,14 @@ public class Review {
     public void preRemove() {
         this.deletedAt = Instant.now();
     }
-    
+
+    public ReviewResponseDto toResponseDto() {
+        ReviewResponseDto responseDto = new ReviewResponseDto();
+        responseDto.setId(this.id);
+        responseDto.setUser(this.user.toUserDto());
+        responseDto.setReview(this.review);
+        responseDto.setRating(this.rating);
+        responseDto.setCreatedAt(this.createdAt);
+        return responseDto;
+    }
 }

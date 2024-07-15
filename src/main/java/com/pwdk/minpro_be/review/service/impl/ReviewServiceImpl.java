@@ -3,13 +3,18 @@ package com.pwdk.minpro_be.review.service.impl;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
 import com.pwdk.minpro_be.exception.ApplicationException;
+import com.pwdk.minpro_be.exception.DataConflictException;
+import com.pwdk.minpro_be.exception.DataNotFoundException;
 import com.pwdk.minpro_be.review.dto.ReviewRequestDto;
+import com.pwdk.minpro_be.review.dto.ReviewResponseDto;
 import com.pwdk.minpro_be.review.entity.Review;
 import com.pwdk.minpro_be.review.repository.ReviewRepository;
 import com.pwdk.minpro_be.review.service.ReviewService;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +40,10 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<Review> getEventReviews(String eventSlug) {
+    public Page<ReviewResponseDto> getEventReviews(String eventSlug, Pageable pageable) {
         Event event = eventService.findBySlug(eventSlug);
-        return reviewRepository.findByEventIdAndDeletedAtIsNull(event.getId());
+        return reviewRepository.findByEventIdAndDeletedAtIsNull(event.getId(), pageable)
+                .map(Review::toResponseDto);
     }
 
     @Override
@@ -68,15 +74,15 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userService.findByEmail(userEmail);
 
         if (updatedReview.isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Review not found");
+            throw new DataNotFoundException("Review not found");
         }
 
         if (updatedReview.get().getDeletedAt() != null) {
-            throw new ApplicationException(HttpStatus.CONFLICT, "You cannot update deleted review");
+            throw new DataConflictException("You cannot update deleted review");
         }
 
         if (!Objects.equals(updatedReview.get().getUser().getId(), user.getId())) {
-            throw new ApplicationException(HttpStatus.CONFLICT, "User ID did not match. You cannot update this review");
+            throw new DataConflictException("User ID did not match. You cannot update this review");
         }
 
         updatedReview.get().setReview(reviewDto.getReview());
@@ -90,15 +96,15 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userService.findByEmail(userEmail);
 
         if (deletedReview.isEmpty()) {
-            throw new ApplicationException(HttpStatus.NOT_FOUND, "Review not found");
+            throw new DataNotFoundException("Review not found");
         }
 
         if (deletedReview.get().getDeletedAt() != null) {
-            throw new ApplicationException(HttpStatus.CONFLICT, "Review already deleted");
+            throw new DataConflictException("Review already deleted");
         }
 
         if (!Objects.equals(deletedReview.get().getUser().getId(), user.getId())) {
-            throw new ApplicationException(HttpStatus.CONFLICT, "User ID did not match. You cannot delete this review");
+            throw new DataConflictException("User ID did not match. You cannot delete this review");
         }
         Instant now = Instant.now();
         ZoneId zoneId = ZoneId.systemDefault();
