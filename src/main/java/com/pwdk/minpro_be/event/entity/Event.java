@@ -2,6 +2,7 @@ package com.pwdk.minpro_be.event.entity;
 
 import com.pwdk.minpro_be.event.dto.EventResponseDto;
 import com.pwdk.minpro_be.eventCategories.entity.EventCategories;
+import com.pwdk.minpro_be.ticket.entity.Ticket;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -12,7 +13,10 @@ import org.hibernate.type.descriptor.jdbc.TimestampWithTimeZoneJdbcType;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -80,6 +84,9 @@ public class Event {
     @Column(name = "deleted_at", nullable = false)
     private Instant deletedAt;
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Ticket> tickets = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         this.createdAt = Instant.now().atZone(ZoneId.systemDefault()).toInstant();
@@ -112,6 +119,9 @@ public class Event {
         responseDto.setUpdatedAt(this.updatedAt);
         responseDto.setCreatedAt(this.createdAt);
         responseDto.setEventCategories(this.eventCategory);
+        responseDto.setTickets(this.tickets.stream()
+                .map(Ticket::toTicketDto)
+                .collect(Collectors.toList()));
 
         return responseDto;
     }

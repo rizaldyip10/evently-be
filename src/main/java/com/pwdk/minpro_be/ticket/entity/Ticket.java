@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.ticket.entity;
 
 import com.pwdk.minpro_be.event.entity.Event;
+import com.pwdk.minpro_be.ticket.dto.TicketResponseDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -56,5 +57,15 @@ public class Ticket {
     protected void onCreate(){
         this.createdAt = Instant.now();
         this.updatedAt = Instant.now();
+    }
+
+    public TicketResponseDto toTicketDto() {
+        TicketResponseDto responseDto = new TicketResponseDto();
+        responseDto.setId(this.Id);
+        responseDto.setName(this.name);
+        responseDto.setPrice(this.price);
+        responseDto.setDescription(this.description);
+        responseDto.setQuota(this.quota);
+        return responseDto;
     }
 }
