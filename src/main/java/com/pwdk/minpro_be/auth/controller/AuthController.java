@@ -67,9 +67,16 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?>profile(){
+    public ResponseEntity<?> profile() {
         var claims = Claims.getClaimsFromJwt();
+        if (claims.isEmpty()) {
+            return Response.failed(HttpStatus.UNAUTHORIZED.value(),"Unable to retrieve user claims");
+        }
+
         var email = (String) claims.get("sub");
+        if (email == null) {
+            return Response.failed(HttpStatus.UNAUTHORIZED.value(), "Email not found in claims");
+        }
 
         var user = userService.findByEmail(email);
         var response = new ProfileResponseDto();
