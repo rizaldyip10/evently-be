@@ -56,7 +56,7 @@ public class AuthController {
 
         Cookie cookie = new Cookie("sid", token);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=/; HttpOnly");
+        headers.add("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=/; HttpOnly; Secure");
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
     }
 
