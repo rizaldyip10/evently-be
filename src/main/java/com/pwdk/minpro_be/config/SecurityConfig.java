@@ -85,6 +85,7 @@ public class SecurityConfig {
                     auth.requestMatchers(HttpMethod.POST,"/api/v1/voucher/{eventSlug}").hasAuthority("SCOPE_ROLE_ORGANIZER");
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/voucher/{eventSlug}").permitAll();
                     auth.requestMatchers("/api/v1/voucher/user-voucher").hasAuthority("SCOPE_ROLE_USER");
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/voucher/transaction/{eventSlug}").hasAnyAuthority("SCOPE_ROLE_USER");
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/review/{eventSlug}").permitAll();
                     auth.requestMatchers(HttpMethod.POST, "/api/v1/review/{eventSlug}").hasAuthority("SCOPE_ROLE_USER");
                     auth.requestMatchers(HttpMethod.PUT, "/api/v1/review/user-review/{reviewId}").hasAuthority("SCOPE_ROLE_USER");

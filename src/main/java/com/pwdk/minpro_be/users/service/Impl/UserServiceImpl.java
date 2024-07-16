@@ -18,6 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -107,16 +111,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public String generateReferralCode(String email) {
         Optional<User> user = userRepository.findByEmail(email);
-        Date today = new Date();
         if (user.isEmpty()) {
             throw new DataNotFoundException("User not found");
         }
 
         var userName = user.get().getName();
-        String referralCode = userName.replace(" ", "") + "Evently" + today.toString();
+
+        Instant now = Instant.now();
+        ZonedDateTime zonedDateTime = now.atZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyyyy");
+        String formattedDate = zonedDateTime.format(formatter);
+
+        String referralCode = "Evently" + userName.replace(" ", "")  + formattedDate;
         user.get().setReferralCode(referralCode);
         userRepository.save(user.get());
 
         return "Successfully create your referral code";
+    }
+
+    @Override
+    public String getUserReferralCode(String email) {
+        return userRepository.findReferralCodeByEmail(email)
+                .orElse(null);
     }
 }

@@ -1,5 +1,7 @@
 package com.pwdk.minpro_be.point.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pwdk.minpro_be.point.dto.PointResponseDto;
 import com.pwdk.minpro_be.users.entity.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -18,7 +20,8 @@ public class UserPoint {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -58,5 +61,11 @@ public class UserPoint {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public PointResponseDto toPointDto() {
+        PointResponseDto responseDto = new PointResponseDto();
+        responseDto.setPoint(this.totalPoint);
+        return responseDto;
     }
 }

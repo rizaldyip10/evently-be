@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.ticket.Service;
 
 import com.pwdk.minpro_be.ticket.dto.CreateTicketDto;
+import com.pwdk.minpro_be.ticket.dto.TicketResponseDto;
 import com.pwdk.minpro_be.ticket.entity.Ticket;
 
 import java.util.List;
@@ -10,6 +11,6 @@ public interface TicketService {
     Ticket createTicket (CreateTicketDto ticket);
     Optional<Ticket> getTicketById(Long id);
     List<Ticket> findAllTickets();
-    List<Ticket> findTicketByEventId(Long eventId);
+    List<TicketResponseDto> findTicketByEvent(String eventSlug);
     void updateTicketQuota(Long ticketId, int updatedQuota);
 }

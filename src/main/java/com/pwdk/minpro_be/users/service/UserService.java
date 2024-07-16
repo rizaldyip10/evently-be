@@ -14,4 +14,5 @@ public interface UserService {
     User profile();
 
     String generateReferralCode(String email);
+    String getUserReferralCode(String email);
 }

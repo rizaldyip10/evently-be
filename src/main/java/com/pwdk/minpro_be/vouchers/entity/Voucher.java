@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.vouchers.entity;
 
+import com.pwdk.minpro_be.vouchers.dto.VoucherResponseDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -53,5 +54,14 @@ public class Voucher {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public VoucherResponseDto toDto() {
+        VoucherResponseDto responseDto = new VoucherResponseDto();
+        responseDto.setId(this.id);
+        responseDto.setName(this.name);
+        responseDto.setDiscount(this.discount);
+        responseDto.setCreatedAt(this.createdAt);
+        return responseDto;
     }
 }
