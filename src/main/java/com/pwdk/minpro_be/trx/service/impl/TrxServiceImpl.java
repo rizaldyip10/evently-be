@@ -3,12 +3,13 @@ package com.pwdk.minpro_be.trx.service.impl;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
 import com.pwdk.minpro_be.exception.ApplicationException;
+import com.pwdk.minpro_be.exception.DataNotFoundException;
+import com.pwdk.minpro_be.point.entity.PointTrxType;
+import com.pwdk.minpro_be.point.entity.UserPoint;
+import com.pwdk.minpro_be.point.service.PointService;
 import com.pwdk.minpro_be.ticket.Service.TicketService;
 import com.pwdk.minpro_be.ticket.entity.Ticket;
-import com.pwdk.minpro_be.trx.dto.PaymentRequestDto;
-import com.pwdk.minpro_be.trx.dto.TicketBoughtListDto;
-import com.pwdk.minpro_be.trx.dto.TicketTrxRequestDto;
-import com.pwdk.minpro_be.trx.dto.VoucherPaymentDto;
+import com.pwdk.minpro_be.trx.dto.*;
 import com.pwdk.minpro_be.trx.entity.PaymentStatus;
 import com.pwdk.minpro_be.trx.entity.Trx;
 import com.pwdk.minpro_be.trx.entity.TrxItem;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Log
@@ -48,6 +50,7 @@ public class TrxServiceImpl implements TrxService {
     private final EventService eventService;
     private final TicketService ticketService;
     private final VoucherService voucherService;
+    private final PointService pointService;
 
     public TrxServiceImpl(TrxRepository trxRepository,
                           TrxItemRepository trxItemRepository,
@@ -57,7 +60,7 @@ public class TrxServiceImpl implements TrxService {
                           @Lazy UserService userService,
                           @Lazy EventService eventService,
                           @Lazy TicketService ticketService,
-                          @Lazy VoucherService voucherService) {
+                          @Lazy VoucherService voucherService, PointService pointService) {
         this.trxRepository = trxRepository;
         this.trxItemRepository = trxItemRepository;
         this.trxPromoRepository = trxPromoRepository;
@@ -67,11 +70,13 @@ public class TrxServiceImpl implements TrxService {
         this.eventService = eventService;
         this.ticketService = ticketService;
         this.voucherService = voucherService;
+        this.pointService = pointService;
     }
 
 
+    @Transactional
     @Override
-    public Trx createUserTrx(String userEmail, String eventSlug) {
+    public TrxResponseDto createUserTrx(String userEmail, String eventSlug) {
         User user = userService.findByEmail(userEmail);
         Event event = eventService.findBySlug(eventSlug);
         PaymentStatus paymentStatus = paymentStatusRepository.findById(2L)
@@ -89,12 +94,12 @@ public class TrxServiceImpl implements TrxService {
         newTrx.setEvent(event);
         newTrx.setInvoiceNumber(invoiceNumber);
         newTrx.setPaymentStatus(paymentStatus);
-        return trxRepository.save(newTrx);
+        return trxRepository.save(newTrx).toTrxDto();
     }
 
     @Transactional
     @Override
-    public Trx addingTrxItem(TicketTrxRequestDto ticketTrxRequestDto,
+    public TrxResponseDto addingTrxItem(TicketTrxRequestDto ticketTrxRequestDto,
                              String userEmail,
                              String eventSlug,
                              Long trxId)
@@ -139,15 +144,15 @@ public class TrxServiceImpl implements TrxService {
 
         trx.get().setTotalPrice(totalPrice);
 
-        return trxRepository.save(trx.get());
+        return trxRepository.save(trx.get()).toTrxDto();
     }
 
     @Transactional
     @Override
-    public Trx addingPaymentMethod(PaymentRequestDto paymentRequestDto,
-                                   String userEmail,
-                                   String eventSlug,
-                                   Long trxId)
+    public TrxResponseDto addingPaymentMethod(PaymentRequestDto paymentRequestDto,
+                                              String userEmail,
+                                              String eventSlug,
+                                              Long trxId)
     {
         User user = userService.findByEmail(userEmail);
         Event event = eventService.findBySlug(eventSlug);
@@ -198,9 +203,27 @@ public class TrxServiceImpl implements TrxService {
                     trxVoucher.add(voucher);
                 }
 
-                totalDiscountedPrice = totalDiscountedPrice + (endPrice * voucher.getDiscount().doubleValue());
-                endPrice = endPrice - totalDiscountedPrice;
+                double discountAmount = endPrice * voucher.getDiscount().doubleValue();
+                totalDiscountedPrice += discountAmount;
+                endPrice -= discountAmount;
             }
+        }
+
+        if (paymentRequestDto.getIsPointUsed()) {
+            UserPoint userPoint = pointService.getUserPoint(user.getId());
+            Double currPoint = userPoint.getTotalPoint();
+            PointTrxType expense = pointService.getPointTrxType(2L);
+
+            if (currPoint > endPrice) {
+                totalDiscountedPrice += endPrice;
+                currPoint -= endPrice;
+                endPrice = 0;
+            } else {
+                totalDiscountedPrice += currPoint;
+                endPrice -= currPoint;
+                currPoint = 0.0;
+            }
+            pointService.createPointTrx(userPoint, expense, currPoint);
         }
 
         var paymentMethod = paymentMethodRepository.findByName(paymentRequestDto.getPaymentMethod())
@@ -213,25 +236,29 @@ public class TrxServiceImpl implements TrxService {
         trx.get().setPaymentMethod(paymentMethod);
         trx.get().setPaymentStatus(paymentStatus);
         trx.get().setVouchers(trxVoucher);
-        return trxRepository.save(trx.get());
+        return trxRepository.save(trx.get()).toTrxDto();
     }
 
     @Override
-    public Trx getTrxDetail(Long trxId) {
-        return trxRepository.findById(trxId)
+    public TrxResponseDto getTrxDetail(Long trxId) {
+        var trx = trxRepository.findById(trxId)
                 .orElseThrow(() -> new ApplicationException(HttpStatus.BAD_REQUEST, "Transaction not found"));
+
+        return trx.toTrxDto();
     }
 
     @Override
-    public List<Trx> getEventTrx(String eventSlug) {
+    public List<TrxResponseDto> getEventTrx(String eventSlug) {
         Event event = eventService.findBySlug(eventSlug);
-        return trxRepository.findByEventIdAndDeletedAtIsNull(event.getId());
+        return trxRepository.findByEventIdAndDeletedAtIsNull(event.getId()).stream()
+                .map(Trx::toTrxDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<Trx> getUserTrx(String email) {
+    public List<TrxResponseDto> getUserTrx(String email) {
         User user = userService.findByEmail(email);
-        return trxRepository.findByUserIdAndDeletedAtIsNull(user.getId());
+        return trxRepository.findByUserIdAndDeletedAtIsNull(user.getId()).stream()
+                .map(Trx::toTrxDto).collect(Collectors.toList());
     }
 
     @Override
@@ -251,6 +278,9 @@ public class TrxServiceImpl implements TrxService {
 
                 var updatedTicketQuota = ticket.getQuota() + trxItem.getAmount();
                 ticketService.updateTicketQuota(ticket.getId(), updatedTicketQuota);
+
+                trxItem.setDeletedAt(Instant.now().atZone(ZoneId.systemDefault()).toInstant());
+                trxItemRepository.save(trxItem);
             }
         }
 

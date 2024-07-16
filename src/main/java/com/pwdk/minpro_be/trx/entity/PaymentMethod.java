@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.trx.entity;
 
+import com.pwdk.minpro_be.trx.dto.PaymentMethodResponseDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -47,5 +48,12 @@ public class PaymentMethod {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public PaymentMethodResponseDto toDto() {
+        var responseDto = new PaymentMethodResponseDto();
+        responseDto.setId(this.id);
+        responseDto.setName(this.name);
+        return responseDto;
     }
 }

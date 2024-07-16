@@ -2,6 +2,7 @@ package com.pwdk.minpro_be.trx.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pwdk.minpro_be.ticket.entity.Ticket;
+import com.pwdk.minpro_be.trx.dto.TrxItemResponseDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -58,5 +59,14 @@ public class TrxItem {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public TrxItemResponseDto toDto() {
+        TrxItemResponseDto responseDto = new TrxItemResponseDto();
+        responseDto.setId(this.id);
+        responseDto.setTicket(this.ticket.toTicketDto());
+        responseDto.setAmount(this.amount);
+
+        return responseDto;
     }
 }

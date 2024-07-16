@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.users.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.pwdk.minpro_be.point.entity.UserPoint;
 import com.pwdk.minpro_be.roles.entity.Roles;
 import com.pwdk.minpro_be.userRole.Entity.UserRole;
 import com.pwdk.minpro_be.users.dto.UserDto;
@@ -58,6 +59,9 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Roles> roles;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private UserPoint points;
+
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", nullable = false)
@@ -95,6 +99,9 @@ public class User {
         userDto.setEmail(this.email);
         userDto.setProfileImg(profileImg);
         userDto.setRoles(this.roles);
+        if (this.points != null) {
+            userDto.setPoints(this.points.toPointDto());
+        }
         return userDto;
     }
 }

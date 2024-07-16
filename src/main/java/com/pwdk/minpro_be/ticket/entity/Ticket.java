@@ -1,5 +1,6 @@
 package com.pwdk.minpro_be.ticket.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.ticket.dto.TicketResponseDto;
 import jakarta.persistence.*;
@@ -37,6 +38,7 @@ public class Ticket {
     private int quota;
 
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
@@ -45,6 +47,7 @@ public class Ticket {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    @JsonIgnore
     @Column(name = "deleted_at")
     @ColumnDefault("CURRENT_TIMESTAMP")
     private Instant deletedAt;

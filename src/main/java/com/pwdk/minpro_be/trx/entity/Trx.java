@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.trx.entity;
 
 import com.pwdk.minpro_be.event.entity.Event;
+import com.pwdk.minpro_be.trx.dto.TrxResponseDto;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.vouchers.entity.Voucher;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -50,7 +52,7 @@ public class Trx {
     @JoinColumn(name = "payment_status_id")
     private PaymentStatus paymentStatus;
 
-    @OneToMany(mappedBy = "trx", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "trx", cascade = CascadeType.ALL)
     private List<TrxItem> trxItems;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -86,5 +88,36 @@ public class Trx {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public TrxResponseDto toTrxDto() {
+        TrxResponseDto responseDto = new TrxResponseDto();
+        responseDto.setId(this.id);
+        responseDto.setInvoiceNumber(this.invoiceNumber);
+        if (this.totalPrice != null) {
+            responseDto.setTotalPrice(this.totalPrice);
+        }
+        if (this.totalDiscount != null) {
+            responseDto.setTotalDiscount(this.totalDiscount);
+        }
+        if (this.finalPrice != null) {
+            responseDto.setFinalPrice(this.finalPrice);
+        }
+        if (this.paymentMethod != null) {
+            responseDto.setPaymentMethod(this.paymentMethod.toDto());
+        }
+        responseDto.setUser(this.user.toUserDto());
+        responseDto.setEvent(this.event.toDto());
+        if (this.trxItems != null) {
+            responseDto.setTrxItems(this.trxItems.stream()
+                    .map(TrxItem::toDto)
+                    .collect(Collectors.toList()));
+        }
+        if (this.vouchers != null) {
+            responseDto.setVouchers(this.vouchers.stream()
+                    .map(Voucher::toDto).collect(Collectors.toList()));
+        }
+        responseDto.setCreatedAt(this.createdAt);
+        return responseDto;
     }
 }

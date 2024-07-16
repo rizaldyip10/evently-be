@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.point.service.impl;
 
 import com.pwdk.minpro_be.exception.ApplicationException;
+import com.pwdk.minpro_be.exception.DataNotFoundException;
 import com.pwdk.minpro_be.point.entity.PointTrx;
 import com.pwdk.minpro_be.point.entity.PointTrxType;
 import com.pwdk.minpro_be.point.entity.UserPoint;
@@ -47,7 +48,7 @@ public class PointServiceImpl implements PointService {
             throw new ApplicationException(HttpStatus.NOT_FOUND, "Point trx type not found");
         }
 
-        var isUserPointExist = userPointRepository.findByUserId(id);
+        Optional<UserPoint> isUserPointExist = userPointRepository.findByUserId(id);
 
         if (isUserPointExist.isEmpty()) {
             var newUserPoint = new UserPoint();
@@ -80,6 +81,18 @@ public class PointServiceImpl implements PointService {
         newTrx.setPoint(point);
 
         pointTrxRepository.save(newTrx);
+    }
+
+    @Override
+    public UserPoint getUserPoint(Long id) {
+        return userPointRepository.findByUserId(id)
+                .orElseThrow(() -> new DataNotFoundException("User don't have points"));
+    }
+
+    @Override
+    public PointTrxType getPointTrxType(Long id) {
+        return pointTrxTypeRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Point trx type not found"));
     }
 
 

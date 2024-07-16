@@ -124,5 +124,11 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findAllDistinctCities(pageable);
     }
 
+    @Override
+    public Event findById(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Event not found"));
+    }
+
 
 }

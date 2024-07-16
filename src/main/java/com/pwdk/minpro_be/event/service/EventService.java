@@ -25,4 +25,5 @@ public interface EventService {
 
     Page<String> findAllEventCities(Pageable pageable);
 
+    Event findById(Long id);
 }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @Log
 public class TicketController {
 
-    private TicketService ticketService;
+    private final TicketService ticketService;
 
     public TicketController(TicketService ticketService){
         this.ticketService = ticketService;
@@ -26,7 +26,7 @@ public class TicketController {
         return Response.success("Ticket success created" , ticketService.createTicket(createTicketDto));
     }
 
-    @GetMapping("/")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getTicketById(@PathVariable Long id){
         return Response.success("Ticket detail", ticketService.getTicketById(id));
     }
@@ -36,9 +36,9 @@ public class TicketController {
         return Response.success("tickets", ticketService.findAllTickets());
     }
 
-    @GetMapping("/event/{eventId}")
-    public ResponseEntity<?> findTicketByEventId(@PathVariable Long eventId){
-        return Response.success("Ticket Event" , ticketService.findTicketByEventId(eventId));
+    @GetMapping("/event/{eventSlug}")
+    public ResponseEntity<?> findTicketByEventId(@PathVariable String eventSlug){
+        return Response.success("Ticket Event" , ticketService.findTicketByEvent(eventSlug));
     }
 
 

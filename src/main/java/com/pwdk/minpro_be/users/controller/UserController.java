@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.users.controller;
 
 import com.pwdk.minpro_be.auth.helpers.Claims;
+import com.pwdk.minpro_be.responses.Response;
 import com.pwdk.minpro_be.users.service.UserService;
 import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.java.Log;
@@ -29,5 +30,13 @@ public class UserController {
         var email = (String) claims.get("sub");
 
         return ResponseEntity.status(HttpStatus.CREATED.value()).body(userService.generateReferralCode(email));
+    }
+
+    @GetMapping("/referral-code")
+    public ResponseEntity<?> getUserReferralCode() {
+        var claims = Claims.getClaimsFromJwt();
+        var email = (String) claims.get("sub");
+
+        return Response.success("Fetched user referral code", userService.getUserReferralCode(email));
     }
 }

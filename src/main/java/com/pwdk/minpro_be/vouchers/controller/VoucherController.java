@@ -1,8 +1,10 @@
 package com.pwdk.minpro_be.vouchers.controller;
 
 import com.pwdk.minpro_be.auth.helpers.Claims;
+import com.pwdk.minpro_be.responses.Response;
 import com.pwdk.minpro_be.vouchers.dto.CreateVoucherRequestDto;
 import com.pwdk.minpro_be.vouchers.service.VoucherService;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,5 +41,20 @@ public class VoucherController {
         var email = (String) claims.get("sub");
 
         return ResponseEntity.status(HttpStatus.OK).body(voucherService.getUserVouchers(email));
+    }
+
+    @GetMapping("/transaction/{eventSlug}")
+    public ResponseEntity<?> getActiveTrxVoucher(
+            @PathVariable("eventSlug") String eventSlug,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size
+    ) {
+        var claims = Claims.getClaimsFromJwt();
+        var email = (String) claims.get("sub");
+
+        var pageable = PageRequest.of(page, size);
+
+        var trxVoucher = voucherService.getActiveTrxVoucher(eventSlug, email, pageable);
+        return Response.success("Fetched trx voucher list", trxVoucher);
     }
 }

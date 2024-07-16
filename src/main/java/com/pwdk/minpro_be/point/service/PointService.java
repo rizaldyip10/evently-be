@@ -6,4 +6,7 @@ import com.pwdk.minpro_be.point.entity.UserPoint;
 public interface PointService {
     String addUserPoint(Long id, Double pointAdded);
     void createPointTrx(UserPoint userPoint, PointTrxType pointTrxType, Double point);
+    UserPoint getUserPoint(Long id);
+
+    PointTrxType getPointTrxType(Long id);
 }
