@@ -16,5 +16,7 @@ WORKDIR /app
 
 COPY --from=build /app/target/minproBE.jar /app/
 
+EXPOSE 8080
+
 ENTRYPOINT ["java", "-jar", "/app/minproBE.jar"]
 
