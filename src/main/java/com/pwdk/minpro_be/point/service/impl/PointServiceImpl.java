@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
@@ -54,7 +56,7 @@ public class PointServiceImpl implements PointService {
             var newUserPoint = new UserPoint();
             newUserPoint.setUser(referredUser);
             newUserPoint.setTotalPoint(pointAdded);
-            newUserPoint.setExpiredAt(Instant.now().plus(3, ChronoUnit.MONTHS));
+            newUserPoint.setExpiredAt(ZonedDateTime.now(ZoneId.systemDefault()).plusMonths(3).toInstant());
             var newAddedUserPoint = userPointRepository.save(newUserPoint);
 
             createPointTrx(newAddedUserPoint, income.get(), pointAdded);
@@ -65,7 +67,7 @@ public class PointServiceImpl implements PointService {
         Double currPoint = isUserPointExist.get().getTotalPoint();
         Instant currExpiredAt = isUserPointExist.get().getExpiredAt();
         isUserPointExist.get().setTotalPoint(currPoint + pointAdded);
-        isUserPointExist.get().setExpiredAt(currExpiredAt.plus(3, ChronoUnit.MONTHS));
+        isUserPointExist.get().setExpiredAt(ZonedDateTime.ofInstant(currExpiredAt, ZoneId.systemDefault()).plusMonths(3).toInstant());
         var updatedUserPoint = userPointRepository.save(isUserPointExist.get());
 
         createPointTrx(updatedUserPoint, income.get(), pointAdded);
