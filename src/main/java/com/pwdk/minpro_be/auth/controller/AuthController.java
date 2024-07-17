@@ -72,7 +72,8 @@ public class AuthController {
     public ResponseEntity<?>profile(){
         var claims = Claims.getClaimsFromJwt();
         log.info("User claims -> " + claims);
-        String email = (String) claims.getOrDefault("sub", null);
+        String email = (String) claims.get("sub");
+        log.info("user email -> " + email);
 
         if (email == null) {
             return Response.failed( HttpStatus.UNAUTHORIZED.value(), "Unable to retrieve user email from authentication");
