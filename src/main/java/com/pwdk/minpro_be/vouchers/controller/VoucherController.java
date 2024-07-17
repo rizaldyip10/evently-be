@@ -57,4 +57,19 @@ public class VoucherController {
         var trxVoucher = voucherService.getActiveTrxVoucher(eventSlug, email, pageable);
         return Response.success("Fetched trx voucher list", trxVoucher);
     }
+
+    @PutMapping("/{eventSlug}/{id}")
+    public ResponseEntity<?> updateEventVoucher(
+            @PathVariable("eventSlug") String eventSlug,
+            @PathVariable("id") Long id,
+            @RequestBody CreateVoucherRequestDto requestDto
+    ) {
+        return Response.success("Voucher updated",
+                voucherService.updateVoucher(requestDto, id, eventSlug));
+    }
+
+    @DeleteMapping("/${id}")
+    public ResponseEntity<?> deleteVoucher(@PathVariable("id") Long id) {
+        return Response.success("Voucher deleted");
+    }
 }
