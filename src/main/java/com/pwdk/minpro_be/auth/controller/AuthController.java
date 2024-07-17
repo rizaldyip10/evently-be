@@ -89,7 +89,9 @@ public class AuthController {
         response.setEmail(user.getEmail());
         response.setProfileImg(user.getProfileImg());
         response.setRole(user.getRoles().getFirst());
-        response.setPoints(user.getPoints().toPointDto());
+        if (user.getPoints() != null) {
+            response.setPoints(user.getPoints().toPointDto());
+        }
 
         return Response.success("User profile", response);
     }
