@@ -68,7 +68,7 @@ public class VoucherController {
                 voucherService.updateVoucher(requestDto, id, eventSlug));
     }
 
-    @DeleteMapping("/${id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteVoucher(@PathVariable("id") Long id) {
         return Response.success("Voucher deleted");
     }
