@@ -3,6 +3,7 @@ package com.pwdk.minpro_be.vouchers.service.impl;
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.service.EventService;
 import com.pwdk.minpro_be.exception.ApplicationException;
+import com.pwdk.minpro_be.exception.DataNotFoundException;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import com.pwdk.minpro_be.vouchers.dto.CreateVoucherRequestDto;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -161,5 +163,32 @@ public class VoucherServiceImpl implements VoucherService {
                 .stream().map(Voucher::toDto).collect(Collectors.toList());
 
         return new PageImpl<>(pageContent, pageable, activeTrxVoucher.size());
+    }
+
+    @Override
+    public VoucherResponseDto updateVoucher(
+            CreateVoucherRequestDto requestDto,
+            Long voucherId,
+            String eventSlug) {
+        Event event = eventService.findBySlug(eventSlug);
+        EventVoucher eventVoucher = getByEventIdAndVoucherId(event.getId(), voucherId)
+                .orElseThrow(() -> new DataNotFoundException("Voucher not found"));
+        Voucher voucher = getVoucherById(eventVoucher.getVoucher().getId());
+
+        if (requestDto.getName() != null) {
+            voucher.setName(requestDto.getName());
+        }
+        if (requestDto.getDiscount() != null) {
+            voucher.setDiscount(requestDto.getDiscount());
+        }
+        return voucher.toDto();
+    }
+
+    @Override
+    public String deleteVoucher(Long voucherId) {
+        Voucher voucher = voucherRepository.findById(voucherId)
+                .orElseThrow(() -> new DataNotFoundException("Voucher not found"));
+        voucher.setDeletedAt(Instant.now().atZone(ZoneId.systemDefault()).toInstant());
+        return "Voucher deleted";
     }
 }

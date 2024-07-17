@@ -20,10 +20,13 @@ public interface VoucherService {
                                     String userEmail);
     void addUserVoucher(User user, Voucher voucher);
     Voucher getVoucherById(Long id);
-
     Voucher getVoucherByName(String voucherName);
-
     Optional<EventVoucher> getByEventIdAndVoucherId(Long eventId, Long voucherId);
     Optional<UserVoucher> getByUserIdAndVoucherId(Long userId, Long voucherId);
     Page<VoucherResponseDto> getActiveTrxVoucher(String eventSlug, String userEmail, Pageable pageable);
+    VoucherResponseDto updateVoucher(
+            CreateVoucherRequestDto requestDto,
+            Long voucherId,
+            String eventSlug);
+    String deleteVoucher(Long voucherId);
 }
