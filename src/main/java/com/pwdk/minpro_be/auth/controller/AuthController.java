@@ -67,7 +67,7 @@ public class AuthController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<?> profile() {
+    public ResponseEntity<?>profile(){
         var claims = Claims.getClaimsFromJwt();
         log.info("User claims -> " + claims);
         String email = (String) claims.getOrDefault("sub", null);
