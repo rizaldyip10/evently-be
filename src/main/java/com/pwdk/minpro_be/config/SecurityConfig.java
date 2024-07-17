@@ -97,6 +97,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/transactions/{eventSlug}/{trxId}").hasAuthority("SCOPE_ROLE_USER");
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/transactions/event/{eventSlug}").hasAuthority("SCOPE_ROLE_ORGANIZER");
                     auth.requestMatchers(HttpMethod.GET, "/api/v1/transactions/user").hasAuthority("SCOPE_ROLE_USER");
+                    auth.requestMatchers(HttpMethod.GET, "/api/v1/event-organization/events").hasAuthority("SCOPE_ROLE_ORGANIZER");
                     auth.anyRequest().authenticated();
                 })
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

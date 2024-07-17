@@ -2,12 +2,18 @@ package com.pwdk.minpro_be.eventOrganizer.service.Impl;
 
 import com.pwdk.minpro_be.event.entity.Event;
 import com.pwdk.minpro_be.event.repository.EventRepository;
+import com.pwdk.minpro_be.event.service.EventService;
+import com.pwdk.minpro_be.eventOrganizer.dto.EventOrganizerResponseDto;
 import com.pwdk.minpro_be.eventOrganizer.entity.EventOrganizer;
 import com.pwdk.minpro_be.eventOrganizer.repository.EventOrganizationRepo;
 import com.pwdk.minpro_be.eventOrganizer.service.EventOrganizationService;
 import com.pwdk.minpro_be.exception.ApplicationException;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.repository.UserRepository;
+import com.pwdk.minpro_be.users.service.UserService;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +21,16 @@ import java.util.Optional;
 
 @Service
 public class EventOrganizationImpl implements EventOrganizationService {
-    private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+    private final EventService eventService;
+    private final UserService userService;
     private final EventOrganizationRepo eventOrganizationRepo;
 
-    public EventOrganizationImpl(EventRepository eventRepository, UserRepository userRepository, EventOrganizationRepo eventOrganizationRepo){
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
+    public EventOrganizationImpl(
+            @Lazy EventService eventService,
+            @Lazy UserService userService,
+            EventOrganizationRepo eventOrganizationRepo){
+        this.eventService = eventService;
+        this.userService = userService;
         this.eventOrganizationRepo = eventOrganizationRepo;
     }
 
@@ -29,18 +38,12 @@ public class EventOrganizationImpl implements EventOrganizationService {
     @Override
     public EventOrganizer createOrganization(Event eventId, User userId) {
         EventOrganizer newEvent = new EventOrganizer();
-        Optional<Event> event = eventRepository.findById(eventId.getId());
-        if(event.isEmpty()){
-            throw new ApplicationException("Event not found");
-        }
-        newEvent.setEvent(event.get());
+        Event event = eventService.findById(eventId.getId());
+        newEvent.setEvent(event);
         newEvent.setId(newEvent.getId());
 
-        Optional<User> user = userRepository.findById(userId.getId());
-        if(user.isEmpty()){
-            throw new ApplicationException("User not found");
-        }
-        newEvent.setUser(user.get());
+        User user = userService.findById(userId.getId());
+        newEvent.setUser(user);
         newEvent.setId(userId.getId());
         eventOrganizationRepo.save(newEvent);
 
@@ -56,5 +59,11 @@ public class EventOrganizationImpl implements EventOrganizationService {
     @Override
     public EventOrganizer findById(Long id) {
         return eventOrganizationRepo.findById(id).orElseThrow(() -> new ApplicationException("Event not found"));
+    }
+
+    @Override
+    public Page<EventOrganizerResponseDto> getUserEvent(Pageable pageable, String userEmail) {
+        User user = userService.findByEmail(userEmail);
+        return eventOrganizationRepo.findByUserId(pageable, user.getId()).map(EventOrganizer::toDto);
     }
 }
