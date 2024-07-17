@@ -43,10 +43,12 @@ public class EventController {
             @RequestParam(required = false) String event,
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-            ){
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(defaultValue = "ASC") Sort.Direction direction
+    ){
+        Sort sort = Sort.by(direction, "date");
         return Response.success("Event list fetched",
-                eventService.findAllEvent(PageRequest.of(page, size), event, category, city, date));
+                eventService.findAllEvent(PageRequest.of(page, size, sort), event, category, city, date));
     }
 
     @GetMapping("/cities")

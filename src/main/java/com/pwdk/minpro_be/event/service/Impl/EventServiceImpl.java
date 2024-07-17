@@ -17,7 +17,9 @@ import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -102,7 +104,15 @@ public class EventServiceImpl implements EventService {
                 .and(EventSpecification.hasName(searchedEventName))
                 .and(EventSpecification.upcomingEvent());
 
-        return eventRepository.findAll(spec, pageable).map(Event::toDto);
+        Sort sort = Sort.by(Sort.Order.asc("date"));
+
+        PageRequest pageRequestWithSort = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sort
+        );
+
+        return eventRepository.findAll(spec, pageRequestWithSort).map(Event::toDto);
     }
 
 
