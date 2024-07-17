@@ -15,6 +15,7 @@ import com.pwdk.minpro_be.exception.ApplicationException;
 import com.pwdk.minpro_be.exception.DataNotFoundException;
 import com.pwdk.minpro_be.users.entity.User;
 import com.pwdk.minpro_be.users.service.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,7 +37,12 @@ public class EventServiceImpl implements EventService {
     private final UserService userService;
     private final EventCategoryRepo eventCategoryRepo;
 
-    public EventServiceImpl(EventRepository eventRepository, SlugGen slugGen, EventOrganizationService eventOrganizationService, UserService userService, EventCategoryRepo eventCategoryRepo) {
+    public EventServiceImpl(
+            EventRepository eventRepository,
+            SlugGen slugGen,
+            @Lazy EventOrganizationService eventOrganizationService,
+            @Lazy UserService userService,
+            EventCategoryRepo eventCategoryRepo) {
         this.eventRepository = eventRepository;
         this.slugGen = slugGen;
         this.eventOrganizationService = eventOrganizationService;

@@ -1,6 +1,7 @@
 package com.pwdk.minpro_be.eventOrganizer.entity;
 
 import com.pwdk.minpro_be.event.entity.Event;
+import com.pwdk.minpro_be.eventOrganizer.dto.EventOrganizerResponseDto;
 import com.pwdk.minpro_be.users.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -21,12 +22,11 @@ public class EventOrganizer {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
-
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
@@ -56,5 +56,13 @@ public class EventOrganizer {
     @PreRemove
     public void preRemove() {
         this.deletedAt = Instant.now();
+    }
+
+    public EventOrganizerResponseDto toDto() {
+        var responseDto = new EventOrganizerResponseDto();
+        responseDto.setId(this.id);
+        responseDto.setEvent(this.getEvent().toDto());
+        responseDto.setCreatedAt(this.createdAt);
+        return responseDto;
     }
 }
