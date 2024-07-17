@@ -50,6 +50,7 @@ public class AuthController {
         LoginResponseDto response = new LoginResponseDto();
         response.setMessage("User logged in successfully");
         response.setToken(token);
+        log.info("token sent to client -> " + token);
 
         User loggedInUser = userService.findByEmail(userDetails.getUsername());
         response.setUser(loggedInUser.toUserDto());
@@ -57,6 +58,7 @@ public class AuthController {
         Cookie cookie = new Cookie("sid", token);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Set-Cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=/; HttpOnly");
+        log.info("Headers added to client -> " + headers);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
     }
 
