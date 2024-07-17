@@ -34,6 +34,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import java.util.Arrays;
+
 
 @Configuration
 @EnableWebSecurity
@@ -108,6 +110,7 @@ public class SecurityConfig {
                         if (cookies != null) {
                             for (Cookie cookie : cookies) {
                                 if ("sid".equals(cookie.getName())) {
+                                    log.info("In coming cookie request -> " + cookie.getValue());
                                     return cookie.getValue();
                                 }
                             }
