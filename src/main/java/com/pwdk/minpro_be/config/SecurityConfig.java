@@ -115,6 +115,10 @@ public class SecurityConfig {
                                 }
                             }
                         }
+                        var header = request.getHeader("Authorization");
+                        if (header != null && !header.isEmpty()) {
+                            return header.replace("Bearer ", "");
+                        }
                         return null;
                     });
                 })
